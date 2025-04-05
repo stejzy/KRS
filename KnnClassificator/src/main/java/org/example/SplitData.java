@@ -34,6 +34,12 @@ public class SplitData {
             groupedArticles.get(label).add(feature);
         }
 
+//        for (Map.Entry<String, List<ExtractedFeatures>> elo : groupedArticles.entrySet()) {
+//            System.out.println("Key: " + elo.getKey());
+//            System.out.println("Value: " + elo.getValue());
+//        }
+
+
         // Zbiory dla danych treningowych i testowych
         List<ExtractedFeatures> trainSet = new ArrayList<>();
         List<ExtractedFeatures> testSet = new ArrayList<>();
@@ -41,6 +47,8 @@ public class SplitData {
         // Ustal liczbę próbek do wyboru z każdej klasy
         for (String label : groupedArticles.keySet()) {
             List<ExtractedFeatures> articlesInClass = groupedArticles.get(label);
+
+            System.out.println(label + " " + articlesInClass.size());
 
             // Oblicz liczbę próbek, które mają trafić do zestawu treningowego (np. 20% z tej klasy)
             int trainingSize = (int) (articlesInClass.size() * (splitPercentage / 100.0));  // SplitPercentage to procent danych do treningu

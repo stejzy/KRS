@@ -12,7 +12,7 @@ public class GenNGramDist {
         double totalSubstrings = (N * (N + 1)) / 2.0; // Ilość możliwych podciągów
         double commonSubstrings = 0;
 
-        for (int length = 1; length <= N; length++) {
+        for (int length = 2; length <= 3; length++) {
             Set<String> substrings1 = getSubstrings(s1, length);
             Set<String> substrings2 = getSubstrings(s2, length);
 

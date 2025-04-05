@@ -71,8 +71,12 @@ public class Main {
             System.out.println("Błąd wczytywania danych.");
             return;
         }
-        // Wyświetlenie liczby wczytanych danych
-        //System.out.println("Liczba wczytanych danych: " + loadedFeatures.size());
+
+
+//         Wyświetlenie liczby wczytanych danych
+        System.out.println("Liczba wczytanych danych: " + loadedFeatures.size());
+
+//        normalizeFeatures(loadedFeatures);
 
         // Wprowadzenie przez użytkownika procentowego podziału
         Scanner scanner = new Scanner(System.in);
