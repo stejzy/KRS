@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 public class CurrencyExtractor {
     private static final Map<String, String> CURRENCY_MAP = new HashMap<>();
+    private static final Pattern CURRENCY_PATTERN;
 
     static {
         // US
@@ -29,14 +30,12 @@ public class CurrencyExtractor {
         // UK
         CURRENCY_MAP.put("stg", "stg");
 
+        String patternString = "\\b(" + String.join("|", CURRENCY_MAP.keySet()) + ")\\b";
+        CURRENCY_PATTERN = Pattern.compile(patternString, Pattern.CASE_INSENSITIVE);
     }
 
     public static String extractCurrency(String text) {
-        Pattern pattern = Pattern.compile(
-                "\\b(dlr|dlrs|dollar|dollars|franc|francs|yen|mark|marks|stg)\\b",
-                Pattern.CASE_INSENSITIVE
-        );
-        Matcher matcher = pattern.matcher(text);
+        Matcher matcher = CURRENCY_PATTERN.matcher(text);
 
         Map<String, Integer> currencyCount = new HashMap<>();
 
@@ -52,7 +51,7 @@ public class CurrencyExtractor {
         return currencyCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> {
-                    System.out.println("Most frequent currency: " + entry.getKey() + " with count: " + entry.getValue());
+//                    System.out.println("Most frequent currency: " + entry.getKey() + " with count: " + entry.getValue());
                     return entry.getKey();
                 })
                 .orElse("none");

@@ -4,9 +4,7 @@ package org.example;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import org.example.extractors.CurrencyExtractor;
-import org.example.extractors.NumericExtractor;
-import org.example.stopWords.DocumentCleaner;
+import org.example.extractors.*;
 import org.example.stopWords.StopWordLoader;
 
 import java.util.ArrayList;
@@ -47,25 +45,51 @@ public class FeatureExtractor {
         double avg = NumericExtractor.calculateAverageWordLength(coreBody);
         features.addFeature("Average word length", avg);
 
+        //Liczba unikalnych słów
+        int uniqueWords = NumericExtractor.countUniqueWords(coreBody);
+        features.addFeature("Unique words", uniqueWords);
 
+
+        //NOTE_FOR_ME Testowanie programu bez usuwania stop words
         //Oczyszczanie tekstu z niepotrzebnych słów (stop words)
-        List<String> filteredBody = new ArrayList<>();
-        String cleanedText = "";
+//        List<String> filteredBody = new ArrayList<>();
+//        String cleanedText = "";
 
-        for (CoreLabel token : coreBody.tokens()) {
-            String word = token.word();
-            if (!stopWords.contains(word) && word.matches("[a-zA-Z]+")) {
-                filteredBody.add(token.word());
-            }
-            cleanedText = String.join(" ", filteredBody);
-            cleanedText = DocumentCleaner.wrapText(cleanedText, 100);
-        }
+//        for (CoreLabel token : coreBody.tokens()) {
+//            String word = token.word();
+//            if (!stopWords.contains(word) && word.matches("[a-zA-Z]+")) {
+//                filteredBody.add(token.word());
+//            }
+//            cleanedText = String.join(" ", filteredBody);
+//            cleanedText = DocumentCleaner.wrapText(cleanedText, 100);
+//        }
 
-//        System.out.println(cleanedText);
+
 
         //Waluta
-        String currency = CurrencyExtractor.extractCurrency(cleanedText);
+        String currency = CurrencyExtractor.extractCurrency(body);
         features.addFeature("Currency", currency);
+
+        //Nazwa kraju
+        String country = CountryExtractor.extractCountry(body);
+        features.addFeature("Country", country);
+
+        //Nazwa narodowości
+        String nation = NationalityExtractor.extractNationality(body);
+        features.addFeature("Nationality", nation);
+
+        Pipeline.setPropertiesName("tokenize, ssplit, pos, lemma, ner");
+//        CoreDocument coreDocument = new CoreDocument(body);
+        Pipeline.getPipeline().annotate(coreBody);
+
+
+        //Nazwa miasta
+        String city = CityExtractor.extractCity(coreBody);
+        features.addFeature("City", city);
+
+        //Nazwa osoby
+        String name = NameExtractor.extractName(coreBody);
+        features.addFeature("Name", name);
 
         return features;
     }

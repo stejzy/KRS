@@ -1,15 +1,14 @@
 package org.example.extractors;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
+import java.util.Set;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.*;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
-import org.example.Pipeline;
 
 public class NumericExtractor {
-    private static StanfordCoreNLP pipeline = Pipeline.getPipeline();
 
     public static int countSentences(CoreDocument text) {
         List<CoreSentence> sentences = text.sentences();
@@ -73,6 +72,16 @@ public class NumericExtractor {
         } else {
             return 0.0;
         }
+    }
+
+    public static int countUniqueWords(CoreDocument text) {
+        List<CoreLabel> tokens = text.tokens();
+        Set<String> uniqueWordsSet = new HashSet<>();
+
+        for (CoreLabel token : tokens) {
+            uniqueWordsSet.add(token.word().toLowerCase());
+        }
+        return uniqueWordsSet.size();
     }
 
 
