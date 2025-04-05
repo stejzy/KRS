@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>feature-extraction</artifactId>
+    <artifactId>FeatureExtractor</artifactId>
 
     <dependencies>
         <dependency>

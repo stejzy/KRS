@@ -9,25 +9,23 @@ public class Pipeline {
     private static String propertiesName = "tokenize, ssplit, pos";
     private static final Properties properties;
 
-    private Pipeline(){}
+    private Pipeline() {}
 
     static {
         properties = new Properties();
         properties.setProperty("annotators", propertiesName);
     }
 
-    public static StanfordCoreNLP getPipeline(){
-        if(pipeline == null){
+    public static StanfordCoreNLP getPipeline() {
+        if (pipeline == null || !propertiesName.equals(properties.getProperty("annotators"))) {
             pipeline = new StanfordCoreNLP(properties);
         }
         return pipeline;
     }
 
-    public static String getPropertiesName() {
-        return propertiesName;
-    }
-
     public static void setPropertiesName(String newProperties) {
         propertiesName = newProperties;
+        properties.setProperty("annotators", propertiesName);
+        pipeline = null;
     }
 }

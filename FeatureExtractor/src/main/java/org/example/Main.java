@@ -42,28 +42,37 @@ public class Main {
         FileSaver.saveDocumentsToFile(extractedDocuments, "basicDoc/doc.txt");
 
         //NOTE_FOR_ME: Oczyszczanie dokumentów z niepotrzebnych słów i ich zapis
-        Set<String> stopWords = StopWordLoader.loadStopWordsFromFile("stopWords.json");
-        List<Document> cleanedDocuments = DocumentCleaner.cleanDocuments(extractedDocuments, stopWords);
-        FileSaver.saveDocumentsToFile(cleanedDocuments, "cleanDoc/doc.txt");
+//        Set<String> stopWords = StopWordLoader.loadStopWordsFromFile("stopWords.json");
+//        List<Document> cleanedDocuments = DocumentCleaner.cleanDocuments(extractedDocuments, stopWords);
+//        FileSaver.saveDocumentsToFile(cleanedDocuments, "cleanDoc/doc.txt");
 
 
         //Ekstrakcja cech z pojedynczego dokumentu
-        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(186));
+        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(534));
         System.out.println(features);
+
 
 //        List<Document> brokenDocuments = new ArrayList<>();
 //        int i = 0;
-//        for (Document doc : cleanedDocuments) {
+//        for (Document doc : extractedDocuments) {
+//            System.out.println(i++);
 //            ExtractedFeatures features = FeatureExtractor.extractFeatures(doc);
 //
-//            Object currencyFeature = features.getFeature("Currency");
-//            System.out.println(i++);
+//            List<String> keys = List.of("Currency", "Country", "Nationality", "City");
 //
-//            if (currencyFeature != null && currencyFeature.equals("none")) {
+//
+//            boolean isBroken = keys.stream()
+//                    .map(features::getFeature)
+//                    .allMatch(f -> f == null || f.equals("none"));
+//
+//            if(isBroken) {
 //                brokenDocuments.add(doc);
 //            }
+//
 //        }
 //        System.out.println(i);
 //        FileSaver.saveDocumentsToFile(brokenDocuments, "brokeDoc/doc.txt");
+
+
     }
 }
