@@ -1,6 +1,6 @@
-package org.example;
+package org.example.metrics;
 
-import java.util.Set;
+import org.example.ExtractedFeatures;
 
 public class Chebyshev {
     public static double calculateDistance(ExtractedFeatures f1, ExtractedFeatures f2) {

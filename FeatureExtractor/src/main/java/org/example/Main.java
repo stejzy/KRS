@@ -16,7 +16,7 @@ public class Main {
 //        System.out.println("Podaj zakres dokumentów do wczytania (0-21): ");
 //        Scanner scanner = new Scanner(System.in);
         int start = 0;
-        int end = 21;
+        int end = 2;
 //        do {
 //            System.out.println("Początek (0-21): ");
 //            while(!scanner.hasNextInt()) {
@@ -48,8 +48,8 @@ public class Main {
 
 
         //Ekstrakcja cech z pojedynczego dokumentu
-        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(534));
-        System.out.println(features);
+//        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(536));
+//        System.out.println(features);
 
 
 //        List<Document> brokenDocuments = new ArrayList<>();
@@ -72,10 +72,13 @@ public class Main {
 //        }
 //        System.out.println(i);
 //        FileSaver.saveDocumentsToFile(brokenDocuments, "brokeDoc/doc.txt");
+
+
         List<ExtractedFeatures>  allFeatures = new ArrayList<>();
         for (int i = 0; i < extractedDocuments.size(); i ++) {
             ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(i));
             allFeatures.add(features);
+            System.out.println(features);
         }
         FileSaver.saveExtractedFeatures(allFeatures, "ExtractedFeatures.ser");
 

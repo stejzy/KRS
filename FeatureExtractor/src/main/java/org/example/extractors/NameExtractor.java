@@ -44,7 +44,7 @@ public class NameExtractor {
         return nameMap.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> {
-                    System.out.println(entry.getKey() + " " + entry.getValue());
+                    //System.out.println(entry.getKey() + " " + entry.getValue());
                     return entry.getKey();
                 })
                 .orElse("none");

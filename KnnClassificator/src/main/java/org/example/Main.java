@@ -1,17 +1,60 @@
 package org.example;
-import java.io.*;
+
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.List;
 import java.util.List;
 import java.util.*;
 
 //metryki
 
 public class Main {
+
+    public static void normalizeFeatures(List<ExtractedFeatures> features) {
+        if (features.isEmpty()) return;
+
+        // Mapowanie: nazwa cechy -> [min, max]
+        Map<String, Double> minValues = new HashMap<>();
+        Map<String, Double> maxValues = new HashMap<>();
+
+        // Szukanie min i max dla każdej cechy
+        for (ExtractedFeatures ef : features) {
+            Map<String, Object> feats = ef.getFeatures();
+            for (Map.Entry<String, Object> entry : feats.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (value instanceof Number num) {
+                    double val = num.doubleValue();
+                    minValues.put(key, Math.min(minValues.getOrDefault(key, Double.MAX_VALUE), val));
+                    maxValues.put(key, Math.max(maxValues.getOrDefault(key, -Double.MAX_VALUE), val));
+                }
+            }
+        }
+
+        // Normalizacja cech
+        for (ExtractedFeatures ef : features) {
+            Map<String, Object> feats = ef.getFeatures();
+            for (Map.Entry<String, Object> entry : feats.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (value instanceof Number num) {
+                    double val = num.doubleValue();
+                    double min = minValues.get(key);
+                    double max = maxValues.get(key);
+
+                    if (max - min != 0) {
+                        double normalized = (val - min) / (max - min);
+                        feats.put(key, normalized);
+                    } else {
+                        feats.put(key, 0.0); // stała wartość, ustaw na 0
+                    }
+                }
+            }
+        }
+    }
+
 
     public static List<ExtractedFeatures> loadFromFile(String file) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
@@ -62,13 +105,15 @@ public class Main {
             }
         } while (metric.isEmpty());
 
-        KNNClassifier knn = new KNNClassifier(trainSet, 20);
+        System.out.print("Podaj ilość somsiadów: ");
+        int k = scanner.nextInt();
+        KNNClassifier knn = new KNNClassifier(trainSet, k);
 
         // Klasyfikacja testowego zestawu
         int correct = 0;
         for (ExtractedFeatures testInstance : testSet) {
             String predictedLabel = knn.classify(testInstance, metric);
-            //System.out.println("Prawdziwa etykieta: " + testInstance.getPlace() + ", Przewidziana: " + predictedLabel);
+            System.out.println("Prawdziwa etykieta: " + testInstance.getPlace() + ", Przewidziana: " + predictedLabel);
             if (predictedLabel.equals(testInstance.getPlace())) {
                 correct++;
             }
@@ -76,32 +121,32 @@ public class Main {
 
         // Obliczenie i wyświetlenie dokładności
         double accuracy = (correct / (double) testSet.size()) * 100;
-        System.out.println("Dokładność klasyfikacji: " + accuracy + "%");
+        System.out.println("Dokładność klasyfikacji: " + (double)Math.round(accuracy * 100d) / 100d + "%");
 
 
 
         // Wypisanie rozmiarów zestawów
-//        System.out.println("Rozmiar zestawu treningowego: " + trainSet.size());
-//        System.out.println("Rozmiar zestawu testowego: " + testSet.size());
+        System.out.println("Rozmiar zestawu treningowego: " + trainSet.size());
+        System.out.println("Rozmiar zestawu testowego: " + testSet.size());
 
-//        Map<String, Integer> countryCount = new HashMap<>();
-//// Iteracja po zestawie treningowym
-//        for (ExtractedFeatures feature : trainSet) {
-//            String place = feature.getPlace();
-//            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
-//        }
-//
-//// Iteracja po zestawie testowym
-//        for (ExtractedFeatures feature : testSet) {
-//            String place = feature.getPlace();
-//            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
-//        }
-//
-//// Wypisanie liczby wystąpień każdego kraju w całej grupie
-//        System.out.println("Liczba artykułów w całej grupie (treningowej i testowej) dla każdego kraju:");
-//        for (Map.Entry<String, Integer> entry : countryCount.entrySet()) {
-//            System.out.println(entry.getKey() + ": " + entry.getValue());
-//        }
+        Map<String, Integer> countryCount = new HashMap<>();
+// Iteracja po zestawie treningowym
+        for (ExtractedFeatures feature : trainSet) {
+            String place = feature.getPlace();
+            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
+        }
+
+// Iteracja po zestawie testowym
+        for (ExtractedFeatures feature : testSet) {
+            String place = feature.getPlace();
+            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
+        }
+
+// Wypisanie liczby wystąpień każdego kraju w całej grupie
+        System.out.println("Liczba artykułów w całej grupie (treningowej i testowej) dla każdego kraju:");
+        for (Map.Entry<String, Integer> entry : countryCount.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
 
     }
 }

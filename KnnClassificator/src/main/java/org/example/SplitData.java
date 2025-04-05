@@ -46,6 +46,8 @@ public class SplitData {
             int trainingSize = (int) (articlesInClass.size() * (splitPercentage / 100.0));  // SplitPercentage to procent danych do treningu
             int testSize = articlesInClass.size() - trainingSize;                            // Pozostałe do testu
 
+            //5 to 75% najmniejszego zbioru
+
             // Jeśli liczba prób w danej klasie jest mniejsza niż wymagany procent (np. 20%), używamy wszystkich danych
             if (articlesInClass.size() < 5) {  // Może być zmieniona ta liczba w zależności od potrzeby
                 trainingSize = articlesInClass.size();  // Użyj wszystkich prób w przypadku zbyt małej liczby

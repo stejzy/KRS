@@ -1,6 +1,7 @@
-package org.example;
+package org.example.metrics;
 
-import java.util.Set;
+import org.example.ExtractedFeatures;
+import org.example.metrics.GenNGramDist;
 
 public class Manhattan {
     public static double calculateDistance(ExtractedFeatures f1, ExtractedFeatures f2) {

@@ -1,5 +1,7 @@
 package org.example.extractors;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +55,7 @@ public class NumericExtractor {
 
     public static double calculateAverageWordLength(CoreDocument text) {
         List<CoreLabel> tokens = text.tokens();
+        DecimalFormat df = new DecimalFormat("#.##");
 
         int totalLength = 0;
         int wordCount = 0;
@@ -68,7 +71,10 @@ public class NumericExtractor {
         }
 
         if (wordCount > 0) {
-            return (double) totalLength / wordCount;
+            double averageLength = (double) totalLength / wordCount;
+//            df.setRoundingMode(RoundingMode.CEILING);
+//            return Double.parseDouble(df.format(averageLength));
+            return (double)Math.round(averageLength * 100d) / 100d;
         } else {
             return 0.0;
         }
