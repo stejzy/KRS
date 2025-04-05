@@ -1,8 +1,7 @@
 package org.example;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileSaver {
@@ -42,5 +41,14 @@ public class FileSaver {
     private static String getNewFileName(String filePath, int fileIndex) {
         String[] parts = filePath.split("\\.");
         return parts[0] + "_" + fileIndex + "." + parts[1];
+    }
+
+    public static void saveExtractedFeatures(List<ExtractedFeatures> features, String file) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(features);
+            System.out.println("Lista ExtractedFeatures została zapisana do pliku.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

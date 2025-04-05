@@ -16,7 +16,7 @@ public class Main {
 //        System.out.println("Podaj zakres dokumentów do wczytania (0-21): ");
 //        Scanner scanner = new Scanner(System.in);
         int start = 0;
-        int end = 0;
+        int end = 21;
 //        do {
 //            System.out.println("Początek (0-21): ");
 //            while(!scanner.hasNextInt()) {
@@ -39,17 +39,17 @@ public class Main {
         System.out.println(extractedDocuments.size() + " dokumentów wczytano");
 
         //NOTE_FOR_ME: Zapisanie dokumnentów do pliku .txt, w przystępniejszej formie do analizy
-        FileSaver.saveDocumentsToFile(extractedDocuments, "basicDoc/doc.txt");
+        //FileSaver.saveDocumentsToFile(extractedDocuments, "basicDoc/doc.txt");
 
         //NOTE_FOR_ME: Oczyszczanie dokumentów z niepotrzebnych słów i ich zapis
         Set<String> stopWords = StopWordLoader.loadStopWordsFromFile("stopWords.json");
         List<Document> cleanedDocuments = DocumentCleaner.cleanDocuments(extractedDocuments, stopWords);
-        FileSaver.saveDocumentsToFile(cleanedDocuments, "cleanDoc/doc.txt");
+        //FileSaver.saveDocumentsToFile(cleanedDocuments, "cleanDoc/doc.txt");
 
 
         //Ekstrakcja cech z pojedynczego dokumentu
-        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(186));
-        System.out.println(features);
+        //ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(186));
+        //System.out.println(features);
 
 //        List<Document> brokenDocuments = new ArrayList<>();
 //        int i = 0;
@@ -65,5 +65,11 @@ public class Main {
 //        }
 //        System.out.println(i);
 //        FileSaver.saveDocumentsToFile(brokenDocuments, "brokeDoc/doc.txt");
+        List<ExtractedFeatures>  allFeatures = new ArrayList<>();
+        for (int i = 0; i < extractedDocuments.size(); i ++) {
+            ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(i));
+            allFeatures.add(features);
+        }
+        FileSaver.saveExtractedFeatures(allFeatures, "ExtractedFeatures.ser");
     }
 }

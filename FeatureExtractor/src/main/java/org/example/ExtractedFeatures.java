@@ -1,13 +1,16 @@
 package org.example;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-public class ExtractedFeatures {
+public class ExtractedFeatures implements Serializable {
     private final String place;
     private final Map<String, Object> extractedFeatures;
+    private static final long serialVersionUID = 2L;
 
     public ExtractedFeatures(String place) {
         extractedFeatures = new HashMap<>();
@@ -46,5 +49,10 @@ public class ExtractedFeatures {
         }
         return null;
     }
+
+    public Map<String, Object> getFeatures() {
+        return extractedFeatures;
+    }
+
 }
 
