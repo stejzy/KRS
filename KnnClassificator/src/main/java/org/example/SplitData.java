@@ -44,7 +44,7 @@ public class SplitData {
                 testSize = 0;
             }
 
-            Collections.shuffle(articlesInClass);
+            //Collections.shuffle(articlesInClass);
 
             trainSet.addAll(articlesInClass.subList(0, trainingSize));
 
