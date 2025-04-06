@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.ExtractedFeatures;
 import org.example.metrics.Chebyshev;
 import org.example.metrics.Euklides;
 import org.example.metrics.Manhattan;
@@ -35,21 +34,17 @@ public class KNNClassifier {
             labelCount.put(label, labelCount.getOrDefault(label, 0) + 1);
         }
 
-        // Znajdź maksymalną liczbę głosów
-        int maxVotes = Collections.max(labelCount.values());
+        int maxLabelCount = Collections.max(labelCount.values());
 
-        // Zbierz wszystkie etykiety, które mają maksymalną liczbę głosów (remis)
         List<String> tiedLabels = labelCount.entrySet().stream()
-                .filter(entry -> entry.getValue() == maxVotes)
+                .filter(entry -> entry.getValue() == maxLabelCount)
                 .map(Map.Entry::getKey)
                 .toList();
 
-        // Jeśli tylko jedna etykieta - zwróć ją
         if (tiedLabels.size() == 1) {
-            return tiedLabels.get(0);
+            return tiedLabels.getFirst();
         }
 
-        // Jeśli jest remis - wybierz najbliższego sąsiada spośród remisujących
         String closestLabel = null;
         double closestDistance = Double.MAX_VALUE;
 
@@ -63,7 +58,6 @@ public class KNNClassifier {
 
         return closestLabel;
     }
-
 
     private double calculateDistance(ExtractedFeatures f1, ExtractedFeatures f2, String metric) {
         return switch (metric.toLowerCase()) {
