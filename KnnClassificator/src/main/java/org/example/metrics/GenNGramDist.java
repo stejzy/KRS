@@ -9,10 +9,13 @@ public class GenNGramDist {
         int N2 = s2.length();
         int N = Math.max(N1, N2);
 
-        double totalSubstrings = (N * (N + 1)) / 2.0; // Ilość możliwych podciągów
+//        double totalSubstrings = (N * (N + 1)) / 2.0;
+        int n1 = 2;
+        int n2 = 3;
+        double totalSubstrings = ((double)((N - n1 + 1) * (N - n1 + 2)) - (double)((N - n2 + 1) * (N - n2))) / 2;
         double commonSubstrings = 0;
 
-        for (int length = 2; length <= 3; length++) {
+        for (int length = n1; length <= n2; length++) {
             Set<String> substrings1 = getSubstrings(s1, length);
             Set<String> substrings2 = getSubstrings(s2, length);
 
@@ -23,7 +26,7 @@ public class GenNGramDist {
             }
         }
 
-        return 1 - (2 * commonSubstrings / totalSubstrings); // Przekształcone na odległość
+        return 1 - (commonSubstrings / totalSubstrings);
     }
 
     private static Set<String> getSubstrings(String str, int length) {

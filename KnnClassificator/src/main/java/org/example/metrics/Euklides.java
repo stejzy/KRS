@@ -2,7 +2,10 @@ package org.example.metrics;
 
 import org.example.ExtractedFeatures;
 
+import java.util.Set;
+
 public class Euklides {
+
     public static double calculateDistance(ExtractedFeatures f1, ExtractedFeatures f2) {
         double sum = 0;
         for (String key : f1.getFeatures().keySet()) {

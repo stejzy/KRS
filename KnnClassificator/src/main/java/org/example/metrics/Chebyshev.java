@@ -21,6 +21,3 @@ public class Chebyshev {
         return maxDiff;
     }
 }
-
-
-//ExtractedFeatures[Place: 'west-germany', extractedFeatures{Numbers: 23, Average word length: 4.805220883534137, Words: 494, Currency: mark, Sentences: 26}]
