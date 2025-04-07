@@ -76,7 +76,11 @@ public class Main {
 //         Wyświetlenie liczby wczytanych danych
         System.out.println("Liczba wczytanych danych: " + loadedFeatures.size());
 
-//        normalizeFeatures(loadedFeatures);
+        normalizeFeatures(loadedFeatures);
+
+//        for (ExtractedFeatures feat : loadedFeatures) {
+//            System.out.println(feat);
+//        }
 
         // Wprowadzenie przez użytkownika procentowego podziału
         Scanner scanner = new Scanner(System.in);

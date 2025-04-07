@@ -79,6 +79,7 @@ public class Main {
             ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(i));
             allFeatures.add(features);
             System.out.println(features);
+            System.out.println(i);
         }
         FileSaver.saveExtractedFeatures(allFeatures, "ExtractedFeatures.ser");
 
