@@ -17,8 +17,8 @@ public class SGMReader {
         }
 
         List<Document> extractedDocuments = new ArrayList<>();
-
-       for (int i = start; i <= end; i++) {
+        int index = 0;
+        for (int i = start; i <= end; i++) {
            String fileName = String.format("reuters/reut2-%03d.sgm", i);
            System.out.println("Przetwarzanie pliku: " + fileName);
 
@@ -46,21 +46,21 @@ public class SGMReader {
                    if (place != null && allowedCountries.contains(place)) {
                        String body = extractBodyFromContent(bodiesMatcher);
                        if (body != null) {
-
                            String cleanedBody = cleanBody(body);
-                           Document doc = new Document(place, cleanedBody);
+                           Document doc = new Document(place, cleanedBody, index);
+                           index++;
                            extractedDocuments.add(doc);
                        }
                    }
                }
-               saveToFile(extractedDocuments);
+
            } catch (FileNotFoundException e) {
                System.err.println(e.getMessage());
            } catch (IOException e) {
                e.printStackTrace();
            }
-       }
-
+        }
+        saveToFile(extractedDocuments);
         return extractedDocuments;
     }
 

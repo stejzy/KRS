@@ -24,7 +24,7 @@ public class FileSaver {
                     writer = new FileWriter(file);
                 }
 
-                writer.write("=== Dokument "+ docIndex +"===\n");
+                writer.write("=== Dokument "+ doc.getIndex() +"===\n");
                 writer.write("Miejsce: " + doc.getPlace() + "\n");
                 writer.write("Treść:\n" + doc.getBody() + "\n\n");
                 docIndex++;

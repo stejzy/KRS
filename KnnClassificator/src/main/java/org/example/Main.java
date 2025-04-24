@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.metrics.EvaluationMetrics;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -65,6 +67,7 @@ public class Main {
         }
         return null;
     }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         List<ExtractedFeatures> loadedFeatures = loadFromFile("ExtractedFeatures.ser");
         if (loadedFeatures == null) {
@@ -72,16 +75,12 @@ public class Main {
             return;
         }
 
-        int splitPercentage = 20;
-        String metric = "euclidean";
-        int k = 5;
+        int splitPercentage = 50;
+        String metric = "Chebyshev";
+        int k = 7;
 
         removeUnwantedKeys(loadedFeatures);
         normalizeFeatures(loadedFeatures);
-
-        for (ExtractedFeatures feat :loadedFeatures) {
-            System.out.println(feat);
-        }
         
         Scanner scanner = new Scanner(System.in);
         System.out.print("Podaj procent danych do zestawu treningowego (0-100%): ");
@@ -118,35 +117,41 @@ public class Main {
         int correct = 0;
         for (ExtractedFeatures testInstance : testSet) {
             String predictedLabel = knn.classify(testInstance, metric);
-            System.out.println("Prawdziwa etykieta: " + testInstance.getPlace() + ", Przewidziana: " + predictedLabel);
+            System.out.println("Prawdziwa etykieta dokumentu nr " + testInstance.getIndex() + ": " + testInstance.getPlace() + ", Przewidziana: " + predictedLabel);
             if (predictedLabel.equals(testInstance.getPlace())) {
                 correct++;
             }
         }
 
-        double accuracy = (correct / (double) testSet.size()) * 100;
-        System.out.println("Dokładność klasyfikacji: " + (double)Math.round(accuracy * 100d) / 100d + "%");
+        List<String> predictions = new ArrayList<>();
+        for (ExtractedFeatures testInstance : testSet) {
+            String predictedLabel = knn.classify(testInstance, metric);
+            predictions.add(predictedLabel);
+            System.out.println("Prawdziwa etykieta dokumentu nr " + testInstance.getIndex() + ": " + testInstance.getPlace() + ", Przewidziana: " + predictedLabel);
+        }
+
+        EvaluationMetrics.evaluate(testSet, predictions);
 
 
-        //System.out.println("Rozmiar zestawu treningowego: " + trainSet.size());
-        //System.out.println("Rozmiar zestawu testowego: " + testSet.size());
+        System.out.println("Rozmiar zestawu treningowego: " + trainSet.size());
+        System.out.println("Rozmiar zestawu testowego: " + testSet.size());
 
-//        Map<String, Integer> countryCount = new HashMap<>();
-//
-//        for (ExtractedFeatures feature : trainSet) {
-//            String place = feature.getPlace();
-//            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
-//        }
-//
-//        for (ExtractedFeatures feature : testSet) {
-//            String place = feature.getPlace();
-//            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
-//        }
-//
-//        System.out.println("Liczba artykułów w całej grupie (treningowej i testowej) dla każdego kraju:");
-//        for (Map.Entry<String, Integer> entry : countryCount.entrySet()) {
-//            System.out.println(entry.getKey() + ": " + entry.getValue());
-//        }
+        Map<String, Integer> countryCount = new HashMap<>();
+
+        for (ExtractedFeatures feature : trainSet) {
+            String place = feature.getPlace();
+            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
+        }
+
+        for (ExtractedFeatures feature : testSet) {
+            String place = feature.getPlace();
+            countryCount.put(place, countryCount.getOrDefault(place, 0) + 1);
+        }
+
+        System.out.println("Liczba artykułów w całej grupie (treningowej i testowej) dla każdego kraju:");
+        for (Map.Entry<String, Integer> entry : countryCount.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
 
     }
 }

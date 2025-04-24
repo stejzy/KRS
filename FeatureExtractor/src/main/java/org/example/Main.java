@@ -41,39 +41,6 @@ public class Main {
         //NOTE_FOR_ME: Zapisanie dokumnentów do pliku .txt, w przystępniejszej formie do analizy
         FileSaver.saveDocumentsToFile(extractedDocuments, "basicDoc/doc.txt");
 
-        //NOTE_FOR_ME: Oczyszczanie dokumentów z niepotrzebnych słów i ich zapis
-//        Set<String> stopWords = StopWordLoader.loadStopWordsFromFile("stopWords.json");
-//        List<Document> cleanedDocuments = DocumentCleaner.cleanDocuments(extractedDocuments, stopWords);
-//        FileSaver.saveDocumentsToFile(cleanedDocuments, "cleanDoc/doc.txt");
-
-
-        //Ekstrakcja cech z pojedynczego dokumentu
-//        ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(536));
-//        System.out.println(features);
-
-
-//        List<Document> brokenDocuments = new ArrayList<>();
-//        int i = 0;
-//        for (Document doc : extractedDocuments) {
-//            System.out.println(i++);
-//            ExtractedFeatures features = FeatureExtractor.extractFeatures(doc);
-//
-//            List<String> keys = List.of("Currency", "Country", "Nationality", "City");
-//
-//
-//            boolean isBroken = keys.stream()
-//                    .map(features::getFeature)
-//                    .allMatch(f -> f == null || f.equals("none"));
-//
-//            if(isBroken) {
-//                brokenDocuments.add(doc);
-//            }
-//
-//        }
-//        System.out.println(i);
-//        FileSaver.saveDocumentsToFile(brokenDocuments, "brokeDoc/doc.txt");
-
-
         List<ExtractedFeatures>  allFeatures = new ArrayList<>();
         for (int i = 0; i < extractedDocuments.size(); i ++) {
             ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(i));

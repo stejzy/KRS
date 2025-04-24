@@ -17,10 +17,11 @@ public class FeatureExtractor {
 
     public static ExtractedFeatures extractFeatures(Document doc) {
         String place = doc.getPlace();
+        int index = doc.getIndex();
         String body = doc.getBody();
 
         //Tworzymy obiekt przechowywujący cechy
-        ExtractedFeatures features = new ExtractedFeatures(place);
+        ExtractedFeatures features = new ExtractedFeatures(place, index);
 
         // NOTE_FOR_ME: Ekstrakcja cech z dokumentu
 

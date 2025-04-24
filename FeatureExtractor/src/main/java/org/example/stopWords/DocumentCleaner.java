@@ -31,7 +31,7 @@ public class DocumentCleaner {
 
             String cleanedText = String.join(" ", filteredTokens);
             cleanedText = wrapText(cleanedText, 60);
-            cleanedDocuments.add(new Document(doc.getPlace(), cleanedText));
+            cleanedDocuments.add(new Document(doc.getPlace(), cleanedText, doc.getIndex()));
         }
 
         return cleanedDocuments;
