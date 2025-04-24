@@ -16,7 +16,7 @@ public class Main {
 //        System.out.println("Podaj zakres dokumentów do wczytania (0-21): ");
 //        Scanner scanner = new Scanner(System.in);
         int start = 0;
-        int end = 2;
+        int end = 21;
 //        do {
 //            System.out.println("Początek (0-21): ");
 //            while(!scanner.hasNextInt()) {
@@ -36,20 +36,22 @@ public class Main {
 
         //Wczytanie dokumentów z plików SGM
         List<Document> extractedDocuments = SGMReader.readFiles(start, end);
-        System.out.println(extractedDocuments.size() + " dokumentów wczytano");
+        //System.out.println(extractedDocuments.size() + " dokumentów wczytano");
 
         //NOTE_FOR_ME: Zapisanie dokumnentów do pliku .txt, w przystępniejszej formie do analizy
         FileSaver.saveDocumentsToFile(extractedDocuments, "basicDoc/doc.txt");
 
         List<ExtractedFeatures>  allFeatures = new ArrayList<>();
+        Long startTime = System.currentTimeMillis();
         for (int i = 0; i < extractedDocuments.size(); i ++) {
             ExtractedFeatures features = FeatureExtractor.extractFeatures(extractedDocuments.get(i));
             allFeatures.add(features);
-            System.out.println(features);
+            //System.out.println(features);
             System.out.println(i);
         }
         FileSaver.saveExtractedFeatures(allFeatures, "ExtractedFeatures.ser");
-
+        Long endTime = System.currentTimeMillis();
+        System.out.println("ExtractedFeatures.ser time: " + (endTime - startTime) + "ms");
 
     }
 }

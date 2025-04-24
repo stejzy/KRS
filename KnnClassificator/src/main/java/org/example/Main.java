@@ -75,8 +75,8 @@ public class Main {
             return;
         }
 
-        int splitPercentage = 50;
-        String metric = "Chebyshev";
+        int splitPercentage = 60;
+        String metric = "euclidean";
         int k = 7;
 
         removeUnwantedKeys(loadedFeatures);
