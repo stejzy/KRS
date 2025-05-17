@@ -9999,3 +9999,4 @@ User ID,Age,Gender,Height (cm),Weight (kg),Workout Type,Workout Duration (mins),
 9998,47,Male,183,75,Running,89,886,114,10532,14.51,Medium,8.1,1.9,1572,73,38.4,28.5,Neutral,Fatigued
 9999,52,Male,170,97,HIIT,28,447,102,13690,1.43,Low,7.3,1.9,2172,84,38.4,28.5,Stressed,Fatigued
 10000,47,Female,186,88,HIIT,56,978,126,8062,12.24,High,6.9,1.9,3056,84,38.4,28.5,Tired,Energized
+,,,,,,,,,,,,,,,,,,,
