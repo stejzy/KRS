@@ -1,16 +1,21 @@
+package utils;
+
 import com.opencsv.CSVReader;
 import java.io.FileReader;
 import java.sql.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-public class CsvToPostgresLoader {
+public class CsvToPostgresConverter {
 
     private static final String JDBC_URL = "jdbc:postgresql://localhost:5432/fitness_db";
     private static final String JDBC_USER = "postgres";
     private static final String JDBC_PASSWORD = "1234";
 
     private static final String CSV_FILE = "workout_fitness_tracker_data.csv";
+//    private static final String ABS_FILE = "C:\\Users\\kacpe\\IdeaProjects\\KRS\\Zadanie2\\workout_fitness_tracker_data.csv";
 
-    public static void main(String[] args) {
+    public static void load() {
         try (
                 Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
                 CSVReader reader = new CSVReader(new FileReader(CSV_FILE))
@@ -79,13 +84,13 @@ public class CsvToPostgresLoader {
             ps.setInt(8, parseIntSafe(data[7]));
             ps.setInt(9, parseIntSafe(data[8]));
             ps.setInt(10, parseIntSafe(data[9]));
-            ps.setFloat(11, parseFloatSafe(data[10]));
+            ps.setDouble(11, parseDoubleSafe(data[10]));
             ps.setString(12, data[11]);
-            ps.setFloat(13, parseFloatSafe(data[12]));
-            ps.setFloat(14, parseFloatSafe(data[13]));
+            ps.setDouble(13, parseDoubleSafe(data[12]));
+            ps.setDouble(14, parseDoubleSafe(data[13]));
             ps.setInt(15, parseIntSafe(data[14]));
             ps.setInt(16, parseIntSafe(data[15]));
-            ps.setFloat(17, parseFloatSafe(data[16]));
+            ps.setDouble(17, parseDoubleSafe(data[16]));
             ps.setFloat(18, parseFloatSafe(data[17]));
             ps.setString(19, data[18]);
             ps.setString(20, data[19]);
@@ -98,7 +103,29 @@ public class CsvToPostgresLoader {
     }
 
     private static float parseFloatSafe(String s) {
-        return (s == null || s.isBlank()) ? 0.0f : Float.parseFloat(s.trim());
+        if (s == null || s.isBlank()) {
+            return 0.0f;
+        }
+        try {
+            BigDecimal bd = new BigDecimal(s.trim());
+            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            return bd.floatValue();
+        } catch (NumberFormatException e) {
+            return 0.0f;
+        }
+    }
+
+    private static double parseDoubleSafe(String s) {
+        if (s == null || s.isBlank()) {
+            return 0.0;
+        }
+        try {
+            BigDecimal bd = new BigDecimal(s.trim());
+            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            return bd.doubleValue();
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
 }
