@@ -10,11 +10,11 @@ public class LinguisticVariable {
     private final Map<String, FuzzySet> labels = new HashMap<>();
     private final double[] universe;
 
-    public LinguisticVariable(String name, double min, double max, int resolution) {
+    public LinguisticVariable(String name, double min, double max, double step) {
         this.name = name;
         this.min = min;
         this.max = max;
-        this.universe = createUniverse(min, max, resolution);
+        this.universe = createUniverse(min, max, step);
     }
 
     private double[] createUniverse(double min, double max, double step) {
@@ -24,6 +24,10 @@ public class LinguisticVariable {
             universe[i] = min + i * step;
         }
         return universe;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void addLabel(String labelName, MembershipFunction mf) {
