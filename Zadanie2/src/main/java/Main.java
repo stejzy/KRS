@@ -1,3 +1,4 @@
+import linguistic.summary.LinguisticVariableRegistry;
 import linguistic.summary.membershipfunctions.GaussianFunction;
 import linguistic.summary.membershipfunctions.MembershipFunction;
 import linguistic.summary.membershipfunctions.TrapezoidalFunction;
@@ -13,6 +14,8 @@ public class Main {
 //        for (String column : dataMap.keySet()) {
 //            System.out.println(column + ": " + dataMap.get(column).size());
 //        }
+
+
 
     }
 }
