@@ -31,7 +31,7 @@ public class LinguisticVariable {
     }
 
     public void addLabel(String labelName, MembershipFunction mf) {
-        labels.put(labelName, new FuzzySet(mf, universe));
+        labels.put(labelName, FuzzySet.createWithDiscreteUniverse(mf, universe));
     }
 
     public double getMembership(String labelName, double x) {

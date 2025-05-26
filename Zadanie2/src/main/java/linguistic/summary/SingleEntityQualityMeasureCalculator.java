@@ -34,10 +34,10 @@ public class SingleEntityQualityMeasureCalculator {
             }
 
             double averageMembership = totalMembership / dataRows.size();
+            System.out.println("Average membership for summarizers: " + averageMembership);
             return quantifier.getMembership(averageMembership);
         }
 
-        // FORM 2: With qualifier
         else if (form.equals("Form 2")) {
             List<Summarizer> qualifiers = summary.getQualifiers();
 
@@ -45,7 +45,6 @@ public class SingleEntityQualityMeasureCalculator {
             double denominator = 0;
 
             for (DataRow row : dataRows) {
-                // oblicz przynależność kwalifikatora (AND dla wielu summarizerów)
                 double qualifierMembership;
                 if (qualifiers.size() == 1) {
                     qualifierMembership = qualifiers.get(0).getMembership(
@@ -59,7 +58,6 @@ public class SingleEntityQualityMeasureCalculator {
                     }
                 }
 
-                // oblicz przynależność sumaryzatora (również AND jeśli złożony)
                 double summarizerMembership;
                 if (summarizers.size() == 1) {
                     summarizerMembership = summarizers.get(0).getMembership(

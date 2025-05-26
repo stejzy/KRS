@@ -2,9 +2,11 @@ package linguistic.summary;
 
 import linguistic.summary.membershipfunctions.MembershipFunction;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class FuzzySet {
+public class FuzzySet implements ISet {
     private final MembershipFunction function;
     private final double[] universe;
 
@@ -13,65 +15,29 @@ public class FuzzySet {
         this.universe = universe;
     }
 
+    @Override
     public double getMembership(double x) {
         return function.calculateMembership(x);
     }
 
-    public FuzzySet complement() {
-        return new FuzzySet(x -> 1.0 - this.getMembership(x), universe);
+    @Override
+    public double[] getUniverse() {
+        return universe;
     }
 
-    public FuzzySet union(FuzzySet other) {
-        return new FuzzySet(x -> Math.max(this.getMembership(x), other.getMembership(x)), universe);
+    public static FuzzySet createWithDiscreteUniverse(MembershipFunction function, double[] values) {
+        return new FuzzySet(function, values);
     }
 
-    public FuzzySet intersection(FuzzySet other) {
-        return new FuzzySet(x -> Math.min(this.getMembership(x), other.getMembership(x)), universe);
+    public static FuzzySet createWithDenseUniverse(MembershipFunction function, double start, double end, double step) {
+        return new FuzzySet(function, generateDenseUniverse(start, end, step));
     }
 
-    public double height() {
-        double max = 0;
-        for (double x : universe) {
-            double mu = getMembership(x);
-            if (mu > max) max = mu;
+    private static double[] generateDenseUniverse(double start, double end, double step) {
+        List<Double> points = new ArrayList<>();
+        for (double x = start; x <= end; x += step) {
+            points.add(x);
         }
-        return max;
-    }
-
-    public double[] support() {
-        return Arrays.stream(universe)
-                .filter(x -> getMembership(x) > 0)
-                .toArray();
-    }
-
-    public double[] alphaCut(double alpha) {
-        return Arrays.stream(universe)
-                .filter(x -> getMembership(x) >= alpha)
-                .toArray();
-    }
-
-    public boolean isEmpty() {
-        return Arrays.stream(universe).allMatch(x -> getMembership(x) == 0);
-    }
-
-    public boolean isNormal() {
-        return Arrays.stream(universe).anyMatch(x -> getMembership(x) == 1.0);
-    }
-
-    public boolean isConvex() {
-        for (int i = 0; i < universe.length; i++) {
-            for (int j = 0; j < universe.length; j++) {
-                double x = universe[i];
-                double y = universe[j];
-                for (double lambda = 0; lambda <= 1; lambda += 0.1) {
-                    double z = lambda * x + (1 - lambda) * y;
-                    double muZ = getMembership(z);
-                    double minMuXY = Math.min(getMembership(x), getMembership(y));
-                    if (muZ < minMuXY) return false;
-                }
-            }
-        }
-        return true;
+        return points.stream().mapToDouble(Double::doubleValue).toArray();
     }
 }
-
