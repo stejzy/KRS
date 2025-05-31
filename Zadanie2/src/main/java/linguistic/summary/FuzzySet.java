@@ -1,5 +1,6 @@
 package linguistic.summary;
 
+import linguistic.summary.membershipfunctions.GaussianFunction;
 import linguistic.summary.membershipfunctions.MembershipFunction;
 
 import java.util.ArrayList;
@@ -17,7 +18,13 @@ public class FuzzySet implements ISet {
 
     @Override
     public double getMembership(double x) {
-        return function.calculateMembership(x);
+        double membership = function.calculateMembership(x);
+
+        if (function instanceof GaussianFunction && membership < 0.1) {
+            return 0.0;
+        }
+
+        return membership;
     }
 
     @Override
@@ -39,5 +46,9 @@ public class FuzzySet implements ISet {
             points.add(x);
         }
         return points.stream().mapToDouble(Double::doubleValue).toArray();
+    }
+
+    public MembershipFunction getFunction() {
+        return function;
     }
 }

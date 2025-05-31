@@ -1,5 +1,8 @@
 package linguistic.summary;
 
+import linguistic.summary.membershipfunctions.GaussianFunction;
+import linguistic.summary.membershipfunctions.MembershipFunction;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,10 +31,15 @@ public class FuzzySetOperations {
     }
 
     public static CrispSet support(FuzzySet set) {
+        MembershipFunction mf = set.getFunction();
+
+        double threshold = (mf instanceof GaussianFunction) ? 0.1 : 0.0;
+
         Set<Double> elements = Arrays.stream(set.getUniverse())
-                .filter(x -> set.getMembership(x) > 0)
+                .filter(x -> set.getMembership(x) > threshold)
                 .boxed()
                 .collect(Collectors.toSet());
+
         return new CrispSet(elements, set.getUniverse());
     }
 

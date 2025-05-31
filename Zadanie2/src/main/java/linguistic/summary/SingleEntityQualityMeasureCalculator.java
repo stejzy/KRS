@@ -2,9 +2,13 @@ package linguistic.summary;
 
 import utils.DataRow;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SingleEntityQualityMeasureCalculator {
+
+    //INFO: Raczej w porządku
     public static double calculateT1(LinguisticSummary summary, List<DataRow> dataRows) {
         String form = summary.getForm();
 
@@ -18,8 +22,8 @@ public class SingleEntityQualityMeasureCalculator {
                 double membership;
 
                 if (summarizers.size() == 1) {
-                    membership = summarizers.get(0).getMembership(
-                            row.getValue(summarizers.get(0).getVariable().getName())
+                    membership = summarizers.getFirst().getMembership(
+                            row.getValue(summarizers.getFirst().getVariable().getName())
                     );
                 } else {
                     membership = 1.0;
@@ -33,7 +37,14 @@ public class SingleEntityQualityMeasureCalculator {
                 totalMembership += membership;
             }
 
-            double averageMembership = totalMembership / dataRows.size();
+            double averageMembership;
+            if(quantifier.isRelative()){
+                averageMembership = totalMembership / dataRows.size();
+
+            } else{
+                averageMembership = totalMembership;
+            }
+
             System.out.println("Average membership for summarizers: " + averageMembership);
             return quantifier.getMembership(averageMembership);
         }
@@ -47,8 +58,8 @@ public class SingleEntityQualityMeasureCalculator {
             for (DataRow row : dataRows) {
                 double qualifierMembership;
                 if (qualifiers.size() == 1) {
-                    qualifierMembership = qualifiers.get(0).getMembership(
-                            row.getValue(qualifiers.get(0).getVariable().getName())
+                    qualifierMembership = qualifiers.getFirst().getMembership(
+                            row.getValue(qualifiers.getFirst().getVariable().getName())
                     );
                 } else {
                     qualifierMembership = 1.0;
@@ -60,8 +71,8 @@ public class SingleEntityQualityMeasureCalculator {
 
                 double summarizerMembership;
                 if (summarizers.size() == 1) {
-                    summarizerMembership = summarizers.get(0).getMembership(
-                            row.getValue(summarizers.get(0).getVariable().getName())
+                    summarizerMembership = summarizers.getFirst().getMembership(
+                            row.getValue(summarizers.getFirst().getVariable().getName())
                     );
                 } else {
                     summarizerMembership = 1.0;
@@ -74,7 +85,7 @@ public class SingleEntityQualityMeasureCalculator {
                 numerator += Math.min(qualifierMembership, summarizerMembership);
                 denominator += qualifierMembership;
             }
-
+            System.out.println(numerator / denominator);
             if (denominator == 0) return 0.0;
             return quantifier.getMembership(numerator / denominator);
         }
@@ -84,34 +95,116 @@ public class SingleEntityQualityMeasureCalculator {
         }
     }
 
+    //INFO: Tylko 1 forma
     public static double calculateT2(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T2 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T2 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        Quantifier quantifier = summary.getQuantifier();
+
+        double geometricMean = 1.0;
+
+        for(Summarizer sum : summarizers){
+            String labelName = summarizers.getFirst().getLabel();
+            FuzzySet set = summarizers.getFirst().getVariable().getLabel(labelName);
+            geometricMean *= FuzzySetOperations.fuzziness(set);
+        }
+
+        System.out.println("Mean:");
+        System.out.println(geometricMean);
+
+        return 1 - Math.pow(geometricMean, 0.5);
     }
 
+    //INFO: Raczej w porządku
     public static double calculateT3(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T3 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T3 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) qualifiers = Collections.emptyList();
+
+        double numerator = 0;
+        double denominator = 0;
+
+        for (DataRow row : dataRows) {
+            boolean summarizerActive = summarizers.stream()
+                    .allMatch(sum -> sum.getMembership(row.getValue(sum.getVariable().getName())) > 0);
+
+            boolean qualifierActive = qualifiers.stream()
+                    .allMatch(qual -> qual.getMembership(row.getValue(qual.getVariable().getName())) > 0);
+
+            if (form.equals("Form 2")) {
+                if (summarizerActive && qualifierActive) numerator++;
+                if (qualifierActive) denominator++;
+            } else {
+                if (summarizerActive) numerator++;
+            }
+        }
+
+        return form.equals("Form 2")
+                ? (denominator > 0 ? numerator / denominator : 0.0)
+                : numerator / dataRows.size();
     }
 
+    //INFO: Tylko 1 forma
     public static double calculateT4(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T4 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T4 calculation logic here if needed.
-        return 0.0;
+        List<Summarizer> summarizers = summary.getSummarizers();
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) { qualifiers = Collections.emptyList(); }
+
+        double T4 = 1.0;
+
+        for (Summarizer summarizer : summarizers) {
+            int count = 0;
+
+            for (DataRow row : dataRows) {
+                double value = row.getValue(summarizer.getVariable().getName());
+                if (summarizer.getMembership(value) > 0) {
+                    count++;
+                }
+            }
+
+            double proportion = (double) count / dataRows.size();
+            T4 *= proportion;
+        }
+        System.out.println("T4:");
+        System.out.println(T4);
+
+
+        double T3 = calculateT3(summary, dataRows);
+
+        System.out.println("T3:");
+        System.out.println(T3);
+
+
+        return Math.abs(T4 - T3);
     }
+
 
     public static double calculateT5(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T5 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T5 calculation logic here if needed.
-        return 0.0;
+        List<Summarizer> summarizers = summary.getSummarizers();
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) { qualifiers = Collections.emptyList(); }
+
+        return 2 * Math.pow(0.5, summarizers.size());
     }
 
     public static double calculateT6(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T6 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T6 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        Quantifier quantifier = summary.getQuantifier();
+
+        FuzzySet set = quantifier.getFuzzySet();
+
+        System.out.println(quantifier.getFuzzySet().getUniverse().length);
+
+        CrispSet set2 = FuzzySetOperations.support(set);
+
+        System.out.println(set2.getElements().size());
+
+        return 1 - FuzzySetOperations.fuzziness(set);
     }
 
     public static double calculateT7(LinguisticSummary summary, List<DataRow> dataRows) {

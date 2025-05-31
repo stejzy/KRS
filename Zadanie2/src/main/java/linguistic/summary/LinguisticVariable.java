@@ -30,6 +30,8 @@ public class LinguisticVariable {
         return name;
     }
 
+
+
     public void addLabel(String labelName, MembershipFunction mf) {
         labels.put(labelName, FuzzySet.createWithDiscreteUniverse(mf, universe));
     }
@@ -42,6 +44,10 @@ public class LinguisticVariable {
 
     public Set<String> getLabels() {
         return labels.keySet();
+    }
+
+    public FuzzySet getLabel(String labelName) {
+        return labels.get(labelName);
     }
 
     @Override

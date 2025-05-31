@@ -11,32 +11,35 @@ public class QuantifierRegistry {
     private static final Map<String, Quantifier> quantifiers = new HashMap<>();
 
     static {
-        FuzzySet veryFewSet = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.05, 0.02), 0.0, 0.18, 0.001);
+//        INFO: Kwantyfiaktory wględne
+        FuzzySet veryFewSet = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.05, 0.02), 0.0, 1.0, 0.001);
         quantifiers.put("bardzo niewiele", new Quantifier("bardzo niewiele", veryFewSet, true));
 
-        FuzzySet fewSet = FuzzySet.createWithDenseUniverse(new TriangularFunction(0.00, 0.125, 0.25), 0.0, 0.25, 0.001);
+        FuzzySet fewSet = FuzzySet.createWithDenseUniverse(new TriangularFunction(0.00, 0.125, 0.25), 0.0, 1.0, 0.001);
         quantifiers.put("niewiele", new Quantifier("niewiele", fewSet, true));
 
-        FuzzySet severalSet = FuzzySet.createWithDenseUniverse(new TrapezoidalFunction(0.15, 0.20, 0.30, 0.35), 0.15, 0.35, 0.001);
+        FuzzySet severalSet = FuzzySet.createWithDenseUniverse(new TrapezoidalFunction(0.15, 0.20, 0.30, 0.35), 0.0, 1.0, 0.001);
         quantifiers.put("kilka", new Quantifier("kilka", severalSet, true));
 
-        FuzzySet around4000Set = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.40, 0.011), 0.35, 0.45, 0.001);
-        quantifiers.put("około 4000", new Quantifier("około 4000", around4000Set, false));
-
-        FuzzySet aboutHalfSet = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.50, 0.08), 0.20, 0.80, 0.001);
+        FuzzySet aboutHalfSet = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.50, 0.08), 0.0, 1.0, 0.001);
         quantifiers.put("około połowy", new Quantifier("około połowy", aboutHalfSet, true));
 
-        FuzzySet manySet = FuzzySet.createWithDenseUniverse(new TrapezoidalFunction(0.60, 0.65, 0.75, 0.80), 0.60, 0.80, 0.001);
+        FuzzySet manySet = FuzzySet.createWithDenseUniverse(new TrapezoidalFunction(0.60, 0.65, 0.75, 0.80), 0.0, 1.0, 0.001);
         quantifiers.put("wiele", new Quantifier("wiele", manySet, true));
 
-        FuzzySet majoritySet = FuzzySet.createWithDenseUniverse(new TriangularFunction(0.65, 0.775, 0.90), 0.65, 0.90, 0.001);
+        FuzzySet majoritySet = FuzzySet.createWithDenseUniverse(new TriangularFunction(0.65, 0.775, 0.90), 0.0, 1.0, 0.001);
         quantifiers.put("większość", new Quantifier("większość", majoritySet, true));
 
         FuzzySet almostAllSet = FuzzySet.createWithDenseUniverse(x -> {
             if (x == 1.0) return 0.0;
             return new TrapezoidalFunction(0.85, 0.925, 1.0, 1.0).calculateMembership(x);
-        }, 0.85, 1.0, 0.001);
+        }, 0.0, 1.0, 0.001);
         quantifiers.put("prawie wszystkie", new Quantifier("prawie wszystkie", almostAllSet, true));
+
+//        INFO: Kwantyfiaktory bezwględne
+
+        FuzzySet around4000Set = FuzzySet.createWithDenseUniverse(new GaussianFunction(0.40, 0.011), 0.0, 1.0, 0.001);
+        quantifiers.put("około 4000", new Quantifier("około 4000", around4000Set, false));
 
 
         //NOTE_FOR_ME: DO ZASTANOWIENIA SIE

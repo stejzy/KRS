@@ -22,7 +22,11 @@ public class Main {
         List<Summarizer> summarizers = new ArrayList<>();
         List<Quantifier> quantifiers = new ArrayList<>();
 
-        // === KROK 1: TWORZENIE SUMARYZATORÓW ===
+        // === KROK 1: WYBÓR FORMY===
+        System.out.print("Use second form? (true/false): ");
+        boolean useSecondForm = scanner.nextBoolean();
+
+        // === KROK 2: TWORZENIE SUMARYZATORÓW ===
         while (true) {
             Map<String, LinguisticVariable> variables = LinguisticVariableRegistry.getAllLinguisticVariables();
             List<String> variableNames = new ArrayList<>(variables.keySet());
@@ -80,16 +84,46 @@ public class Main {
             System.out.println(" - Label: " + summarizer.getLabel());
         }
 
-        // === KROK 2: WYBÓR KWANTYFIKATORÓW Z REJESTRU ===
+
+
+        // === KROK 3: WYBÓR KWANTYFIKATORÓW Z REJESTRU ===
         System.out.println("\nAvailable quantifiers (type 'end' to finish):");
 
         Map<String, Quantifier> availableQuantifiers = QuantifierRegistry.getAll();
-        List<String> quantifierNames = new ArrayList<>(availableQuantifiers.keySet());
+
+        // Podziel kwantyfikatory na względne i bezwzględne
+        List<String> relativeQuantifiers = new ArrayList<>();
+        List<String> absoluteQuantifiers = new ArrayList<>();
+
+        for (Map.Entry<String, Quantifier> entry : availableQuantifiers.entrySet()) {
+            if (entry.getValue().isRelative()) {
+                relativeQuantifiers.add(entry.getKey());
+            } else {
+                absoluteQuantifiers.add(entry.getKey());
+            }
+        }
+
+// Połącz listy — względne najpierw, potem bezwzględne
+        List<String> quantifierNames = new ArrayList<>();
+        quantifierNames.addAll(relativeQuantifiers);
+        quantifierNames.addAll(absoluteQuantifiers);
 
         while (true) {
             System.out.println("\nQuantifier options:");
-            for (int i = 0; i < quantifierNames.size(); i++) {
-                System.out.println((i + 1) + ". " + quantifierNames.get(i));
+
+            if (!relativeQuantifiers.isEmpty()) {
+                System.out.println("Relative quantifiers:");
+                for (int i = 0; i < relativeQuantifiers.size(); i++) {
+                    System.out.println((i + 1) + ". " + relativeQuantifiers.get(i));
+                }
+            }
+
+            if (!useSecondForm && !absoluteQuantifiers.isEmpty()) {
+                System.out.println("Absolute quantifiers:");
+                for (int i = 0; i < absoluteQuantifiers.size(); i++) {
+                    // Indeks kontynuujemy po względnych
+                    System.out.println((relativeQuantifiers.size() + i + 1) + ". " + absoluteQuantifiers.get(i));
+                }
             }
 
             System.out.print("Enter the number of the quantifier (or 'end' to finish): ");
@@ -117,10 +151,10 @@ public class Main {
             System.out.println("Quantifier added: " + selectedQuantifier.getName());
         }
 
-        // === KROK 3: WYBÓR FORMY I GENEROWANIE ===
-        System.out.print("\nUse second form? (true/false): ");
-        boolean useSecondForm = scanner.nextBoolean();
 
+
+
+        // === KROK 4: GENEROWANIE PODSUMOWAN ===
         List<LinguisticSummary> summaries = SingleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, useSecondForm);
 
 
@@ -128,11 +162,11 @@ public class Main {
         // === KROK 5: OBLICZANIE MIAR JAKOŚCI DLA KAŻDEGO PODSUMOWANIA ===
         for (LinguisticSummary summary : summaries) {
             double t1 = SingleEntityQualityMeasureCalculator.calculateT1(summary, dataRows);
-//            double t2 = SingleEntityQualityMeasureCalculator.calculateT2(summary, dataRows);
-//            double t3 = SingleEntityQualityMeasureCalculator.calculateT3(summary, dataRows);
-//            double t4 = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
-//            double t5 = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
-//            double t6 = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
+            double t2 = SingleEntityQualityMeasureCalculator.calculateT2(summary, dataRows);
+            double t3 = SingleEntityQualityMeasureCalculator.calculateT3(summary, dataRows);
+            double t4 = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
+            double t5 = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
+            double t6 = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
 //            double t7 = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
 //            double t8 = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
 //            double t9 = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
@@ -143,7 +177,7 @@ public class Main {
 //            summary.setQualityMeasure("T3", t3);
 //            summary.setQualityMeasure("T4", t4);
 //            summary.setQualityMeasure("T5", t5);
-//            summary.setQualityMeasure("T6", t6);
+            summary.setQualityMeasure("T6", t6);
 //            summary.setQualityMeasure("T7", t7);
 //            summary.setQualityMeasure("T8", t8);
 //            summary.setQualityMeasure("T9", t9);
