@@ -190,6 +190,25 @@ public class SingleEntityQualityMeasureCalculator {
         return 2 * Math.pow(0.5, summarizers.size());
     }
 
+    public static double optimalSummary(
+            LinguisticSummary summary,
+            List<DataRow> dataRows,
+            double w1, double w2, double w3, double w4, double w5
+    ) {
+        double sumWeights = w1 + w2 + w3 + w4 + w5;
+        if (Math.abs(sumWeights - 1.0) > 1e-6) {
+            throw new IllegalArgumentException("Suma wag musi wynosić dokładnie 1.0");
+        }
+
+        double t1 = calculateT1(summary, dataRows);
+        double t2 = calculateT2(summary, dataRows);
+        double t3 = calculateT3(summary, dataRows);
+        double t4 = calculateT4(summary, dataRows);
+        double t5 = calculateT5(summary, dataRows);
+
+        return w1 * t1 + w2 * t2 + w3 * t3 + w4 * t4 + w5 * t5;
+    }
+
     //INFO: Raczej dobrze
     public static double calculateT6(LinguisticSummary summary, List<DataRow> dataRows) {
         String form = summary.getForm();
@@ -275,8 +294,21 @@ public class SingleEntityQualityMeasureCalculator {
 
     //INFO: Tylko druga forma
     public static double calculateT10(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T10 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T10 calculation logic here if needed.
-        return 0.0;
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) { qualifiers = Collections.emptyList(); }
+
+        double geometricMean = 1.0;
+
+        for(Summarizer qual : qualifiers){
+            String labelName = qual.getLabel();
+            FuzzySet set = qual.getVariable().getLabel(labelName);
+
+            geometricMean *= (set.getFunction().clm() / qual.getVariable().getUniverse().length);
+        }
+
+        System.out.println("Mean 10:");
+        System.out.println(geometricMean);
+
+        return 1 - Math.pow(geometricMean, 0.5);
     }
 }
