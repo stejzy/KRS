@@ -48,6 +48,10 @@ public class FuzzySetOperations {
         int supportSize = supportSet.getElements().size();
         int universeSize = set.getUniverse().length;
 
+        System.out.println("dasdas");
+        System.out.println(supportSize);
+        System.out.println(universeSize);
+
         return ((double) supportSize / universeSize);
     }
 

@@ -12,6 +12,10 @@ public class TriangularFunction implements MembershipFunction{
         this.c = c;
     }
 
+    public double clm() {
+        return 0.5 * (c - a);
+    }
+
     @Override
     public double calculateMembership(double value) {
         if (value <= a || value >= c) {

@@ -13,6 +13,13 @@ public class TrapezoidalFunction implements MembershipFunction{
         this.d = d;
     }
 
+    public double clm() {
+        double rising = 0.5 * (b - a);
+        double top = c - b;
+        double falling = 0.5 * (d - c);
+        return rising + top + falling;
+    }
+
     @Override
     public double calculateMembership(double value) {
         if (value <= a || value >= d) {

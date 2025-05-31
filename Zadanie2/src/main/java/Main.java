@@ -167,20 +167,20 @@ public class Main {
             double t4 = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
             double t5 = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
             double t6 = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
-//            double t7 = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
-//            double t8 = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
-//            double t9 = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
+            double t7 = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
+            double t8 = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
+            double t9 = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
 //            double t10 = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
 
             summary.setQualityMeasure("T1", t1);
-//            summary.setQualityMeasure("T2", t2);
+            summary.setQualityMeasure("T2", t2);
 //            summary.setQualityMeasure("T3", t3);
 //            summary.setQualityMeasure("T4", t4);
 //            summary.setQualityMeasure("T5", t5);
-            summary.setQualityMeasure("T6", t6);
+//            summary.setQualityMeasure("T6", t6);
 //            summary.setQualityMeasure("T7", t7);
 //            summary.setQualityMeasure("T8", t8);
-//            summary.setQualityMeasure("T9", t9);
+            summary.setQualityMeasure("T9", t9);
 //            summary.setQualityMeasure("T10", t10);
         }
 

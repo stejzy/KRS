@@ -85,7 +85,7 @@ public class SingleEntityQualityMeasureCalculator {
                 numerator += Math.min(qualifierMembership, summarizerMembership);
                 denominator += qualifierMembership;
             }
-            System.out.println(numerator / denominator);
+//            System.out.println(numerator / denominator);
             if (denominator == 0) return 0.0;
             return quantifier.getMembership(numerator / denominator);
         }
@@ -105,12 +105,12 @@ public class SingleEntityQualityMeasureCalculator {
         double geometricMean = 1.0;
 
         for(Summarizer sum : summarizers){
-            String labelName = summarizers.getFirst().getLabel();
-            FuzzySet set = summarizers.getFirst().getVariable().getLabel(labelName);
+            String labelName = sum.getLabel();
+            FuzzySet set = sum.getVariable().getLabel(labelName);
             geometricMean *= FuzzySetOperations.fuzziness(set);
         }
 
-        System.out.println("Mean:");
+        System.out.println("Mean 2:");
         System.out.println(geometricMean);
 
         return 1 - Math.pow(geometricMean, 0.5);
@@ -190,6 +190,7 @@ public class SingleEntityQualityMeasureCalculator {
         return 2 * Math.pow(0.5, summarizers.size());
     }
 
+    //INFO: Raczej dobrze
     public static double calculateT6(LinguisticSummary summary, List<DataRow> dataRows) {
         String form = summary.getForm();
 
@@ -207,24 +208,72 @@ public class SingleEntityQualityMeasureCalculator {
         return 1 - FuzzySetOperations.fuzziness(set);
     }
 
+    //INFO: Raczej dobrze
     public static double calculateT7(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T7 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T7 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        Quantifier quantifier = summary.getQuantifier();
+
+        FuzzySet set = quantifier.getFuzzySet();
+
+        System.out.println(quantifier.getFuzzySet().getFunction().clm());
+
+        if(quantifier.isRelative()){
+            return 1 - quantifier.getFuzzySet().getFunction().clm();
+        } else {
+            return 1 - quantifier.getFuzzySet().getFunction().clm() / dataRows.size();
+        }
+
     }
 
+    //INFO
     public static double calculateT8(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T8 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T8 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        Quantifier quantifier = summary.getQuantifier();
+
+        double geometricMean = 1.0;
+
+        for(Summarizer sum : summarizers){
+            String labelName = sum.getLabel();
+            FuzzySet set = sum.getVariable().getLabel(labelName);
+
+            geometricMean *= (set.getFunction().clm() / sum.getVariable().getUniverse().length);
+        }
+
+        System.out.println("Mean 8:");
+        System.out.println(geometricMean);
+
+        return 1 - Math.pow(geometricMean, 0.5);
     }
 
+    //INFO: Tylko druga forma
     public static double calculateT9(LinguisticSummary summary, List<DataRow> dataRows) {
-        // T9 is not defined in the original code, so we return 0.0 as a placeholder.
-        // Implement T9 calculation logic here if needed.
-        return 0.0;
+        String form = summary.getForm();
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        Quantifier quantifier = summary.getQuantifier();
+
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) { qualifiers = Collections.emptyList(); }
+
+        double geometricMean = 1.0;
+
+        for(Summarizer qual : qualifiers){
+            String labelName = qual.getLabel();
+            FuzzySet set = qual.getVariable().getLabel(labelName);
+            geometricMean *= FuzzySetOperations.fuzziness(set);
+        }
+
+        System.out.println("Mean 9:");
+        System.out.println(geometricMean);
+
+        return 1 - Math.pow(geometricMean, 0.5);
     }
 
+    //INFO: Tylko druga forma
     public static double calculateT10(LinguisticSummary summary, List<DataRow> dataRows) {
         // T10 is not defined in the original code, so we return 0.0 as a placeholder.
         // Implement T10 calculation logic here if needed.
