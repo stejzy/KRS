@@ -46,35 +46,35 @@ public class QuantifierRegistry {
 
         FuzzySet lessthan1000 = FuzzySet.createWithDenseUniverse(
                 new TrapezoidalFunction(0, 0, 1000, 1000), 0.0, 10000.0, 0.1);
-        quantifiers.put("mniej niż 1000", new Quantifier("mniej niz 1000", lessthan1000, true));
+        quantifiers.put("mniej niż 1000", new Quantifier("mniej niz 1000", lessthan1000, false));
 
         FuzzySet around2000 = FuzzySet.createWithDenseUniverse(
                 new GaussianFunction(2000, 600), 0.0, 10000.0, 0.1);
-        quantifiers.put("około 2000", new Quantifier("około 2000", around2000, true));
+        quantifiers.put("około 2000", new Quantifier("około 2000", around2000, false));
 
         FuzzySet between2500and3000 = FuzzySet.createWithDenseUniverse(
                 new TrapezoidalFunction(2500, 2500, 3000, 3000), 0.0, 10000.0, 0.1);
-        quantifiers.put("między 2500 a 3000", new Quantifier("między 2500 a 3000", between2500and3000, true));
+        quantifiers.put("między 2500 a 3000", new Quantifier("między 2500 a 3000", between2500and3000, false));
 
         FuzzySet around4000 = FuzzySet.createWithDenseUniverse(
                 new GaussianFunction(4000, 600), 0.0, 10000.0, 0.1);
-        quantifiers.put("około 4000", new Quantifier("około 4000", around4000, true));
+        quantifiers.put("około 4000", new Quantifier("około 4000", around4000, false));
 
         FuzzySet around5000 = FuzzySet.createWithDenseUniverse(
                 new GaussianFunction(5000, 600), 0.0, 10000.0, 0.1);
-        quantifiers.put("około 5000", new Quantifier("około 5000", around5000, true));
+        quantifiers.put("około 5000", new Quantifier("około 5000", around5000, false));
 
         FuzzySet around6500 = FuzzySet.createWithDenseUniverse(
                 new GaussianFunction(6500, 600), 0.0, 10000.0, 0.1);
-        quantifiers.put("około 6500", new Quantifier("około 6500", around6500, true));
+        quantifiers.put("około 6500", new Quantifier("około 6500", around6500, false));
 
         FuzzySet between7500and8000 = FuzzySet.createWithDenseUniverse(
                 new TrapezoidalFunction(7500, 7500, 8000, 8000), 0.0, 10000.0, 0.1);
-        quantifiers.put("między 7500 a 8000", new Quantifier("między 7500 a 8000", between7500and8000, true));
+        quantifiers.put("między 7500 a 8000", new Quantifier("między 7500 a 8000", between7500and8000, false));
 
         FuzzySet morethan8500 = FuzzySet.createWithDenseUniverse(
                 new TrapezoidalFunction(8500, 8500, 10000, 10000), 0.0, 10000.0, 0.1);
-        quantifiers.put("więcej niż 8500", new Quantifier("więcej niż 8500", morethan8500, true));
+        quantifiers.put("więcej niż 8500", new Quantifier("więcej niż 8500", morethan8500, false));
 
 
 

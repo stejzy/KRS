@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="linguistic.summary.gui.InputController"
+      spacing="10" style="-fx-background-color: bisque;" alignment="TOP_CENTER"
+      prefWidth="1200" prefHeight="700">
+
+    <Label fx:id="formLabel" text="Wybierz forme podsumowania" style="-fx-font-weight: bold; -fx-padding: 5 0 5 0;"/>
+
+    <fx:define>
+        <ToggleGroup fx:id="chooseForm"/>
+    </fx:define>
+
+    <HBox spacing="10" alignment="CENTER">
+        <RadioButton fx:id="form1" text="Forma 1" toggleGroup="$chooseForm"/>
+        <RadioButton fx:id="form2" text="Forma 2" toggleGroup="$chooseForm"/>
+    </HBox>
+
+    <TitledPane fx:id="summarizerPane" text="Wybierz sumaryzatory" expanded="false">
+        <content>
+            <ScrollPane fitToWidth="true" maxHeight="500">
+                <content>
+                    <VBox fx:id="radioGroupsContainer" spacing="20">
+                        <padding>
+                            <Insets bottom="10" right="10" left="10"/>
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </content>
+    </TitledPane>
+
+    <TitledPane fx:id="quantifierPane" text="Wybierz kwantyfikatory" expanded="false">
+        <content>
+            <ScrollPane fitToWidth="true" maxHeight="500">
+                <content>
+                    <VBox fx:id="quantifierContainer" spacing="20">
+                        <padding>
+                            <Insets bottom="10" right="10" left="10"/>
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </content>
+    </TitledPane>
+
+    <TitledPane fx:id="qualityMeasuresPane" text="Wybierz miary jakości" expanded="false">
+        <content>
+            <ScrollPane fitToWidth="true" maxHeight="500">
+                <content>
+                    <VBox fx:id="qualityMeasuresContainer" spacing="20">
+                        <padding>
+                            <Insets bottom="10" right="10" left="10"/>
+                        </padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </content>
+    </TitledPane>
+
+    <Button fx:id="generateButton" text="Generuj podsumowania" style="-fx-font-weight: bold; -fx-padding: 10;" VBox.vgrow="NEVER"/>
+
+</VBox>

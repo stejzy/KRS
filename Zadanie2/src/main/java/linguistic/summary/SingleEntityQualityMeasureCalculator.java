@@ -166,6 +166,8 @@ public class SingleEntityQualityMeasureCalculator {
             }
 
             double proportion = (double) count / dataRows.size();
+            System.out.println("Prop");
+            System.out.println(proportion);
             T4 *= proportion;
         }
         System.out.println("T4:");
@@ -218,11 +220,11 @@ public class SingleEntityQualityMeasureCalculator {
 
         FuzzySet set = quantifier.getFuzzySet();
 
-        System.out.println(quantifier.getFuzzySet().getUniverse().length);
+//        System.out.println(quantifier.getFuzzySet().getUniverse().length);
 
         CrispSet set2 = FuzzySetOperations.support(set);
 
-        System.out.println(set2.getElements().size());
+//        System.out.println(set2.getElements().size());
 
         return 1 - FuzzySetOperations.fuzziness(set);
     }
@@ -236,7 +238,7 @@ public class SingleEntityQualityMeasureCalculator {
 
         FuzzySet set = quantifier.getFuzzySet();
 
-        System.out.println(quantifier.getFuzzySet().getFunction().clm());
+//        System.out.println(quantifier.getFuzzySet().getFunction().clm());
 
         if(quantifier.isRelative()){
             return 1 - quantifier.getFuzzySet().getFunction().clm();
@@ -262,8 +264,8 @@ public class SingleEntityQualityMeasureCalculator {
             geometricMean *= (set.getFunction().clm() / sum.getVariable().getUniverse().length);
         }
 
-        System.out.println("Mean 8:");
-        System.out.println(geometricMean);
+//        System.out.println("Mean 8:");
+//        System.out.println(geometricMean);
 
         return 1 - Math.pow(geometricMean, 0.5);
     }
@@ -286,8 +288,8 @@ public class SingleEntityQualityMeasureCalculator {
             geometricMean *= FuzzySetOperations.fuzziness(set);
         }
 
-        System.out.println("Mean 9:");
-        System.out.println(geometricMean);
+//        System.out.println("Mean 9:");
+//        System.out.println(geometricMean);
 
         return 1 - Math.pow(geometricMean, 0.5);
     }
@@ -306,8 +308,8 @@ public class SingleEntityQualityMeasureCalculator {
             geometricMean *= (set.getFunction().clm() / qual.getVariable().getUniverse().length);
         }
 
-        System.out.println("Mean 10:");
-        System.out.println(geometricMean);
+//        System.out.println("Mean 10:");
+//        System.out.println(geometricMean);
 
         return 1 - Math.pow(geometricMean, 0.5);
     }
