@@ -12,10 +12,10 @@ public class CsvToPostgresConverter {
     private static final String JDBC_USER = "postgres";
     private static final String JDBC_PASSWORD = "1234";
 
-    private static final String CSV_FILE = "workout_fitness_tracker_data.csv";
+    private static final String CSV_FILE = "data_v2.csv";
 //    private static final String ABS_FILE = "C:\\Users\\kacpe\\IdeaProjects\\KRS\\Zadanie2\\workout_fitness_tracker_data.csv";
 
-    public static void load() {
+    public static void main(String[] args) {
         try (
                 Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD);
                 CSVReader reader = new CSVReader(new FileReader(CSV_FILE))

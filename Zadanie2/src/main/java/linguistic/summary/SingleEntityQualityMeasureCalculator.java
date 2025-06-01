@@ -142,6 +142,11 @@ public class SingleEntityQualityMeasureCalculator {
             }
         }
 
+        System.out.println("D");
+        System.out.println(denominator);
+        System.out.println("N");
+        System.out.println(numerator);
+
         return form.equals("Form 2")
                 ? (denominator > 0 ? numerator / denominator : 0.0)
                 : numerator / dataRows.size();
@@ -157,6 +162,7 @@ public class SingleEntityQualityMeasureCalculator {
 
         for (Summarizer summarizer : summarizers) {
             int count = 0;
+            System.out.println(dataRows.size());
 
             for (DataRow row : dataRows) {
                 double value = row.getValue(summarizer.getVariable().getName());
@@ -164,7 +170,8 @@ public class SingleEntityQualityMeasureCalculator {
                     count++;
                 }
             }
-
+            System.out.println("Count");
+            System.out.println(count);
             double proportion = (double) count / dataRows.size();
             System.out.println("Prop");
             System.out.println(proportion);

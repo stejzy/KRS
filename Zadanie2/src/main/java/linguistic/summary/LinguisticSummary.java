@@ -134,10 +134,10 @@ public class LinguisticSummary {
 
             sb.append(" (").append(form).append(")");
 
-            if (!qualityMeasures.isEmpty()) {
-                sb.append(" — Miary: ");
-                qualityMeasures.forEach((k, v) -> sb.append(k).append(": ").append(String.format("%.3f", v)).append("  "));
-            }
+//            if (!qualityMeasures.isEmpty()) {
+//                sb.append(" — Miary: ");
+//                qualityMeasures.forEach((k, v) -> sb.append(k).append(": ").append(String.format("%.3f", v)).append("  "));
+//            }
 
             return sb.toString();
     }
