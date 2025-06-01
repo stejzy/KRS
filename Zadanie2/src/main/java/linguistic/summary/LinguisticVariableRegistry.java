@@ -15,7 +15,7 @@ public class LinguisticVariableRegistry {
 
         age.addLabel("młody", new TriangularFunction(18, 18, 31));
         age.addLabel("w średnim wieku", new TriangularFunction(22, 35, 48));
-        age.addLabel("stary", new TrapezoidalFunction(40, 45, 59, 59));
+        age.addLabel("s+tary", new TrapezoidalFunction(40, 45, 59, 59));
         variables.put("Age", age);
 
         LinguisticVariable height = new LinguisticVariable("Height (cm)", 150, 199, 1);
