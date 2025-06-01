@@ -199,6 +199,13 @@ public class SingleEntityQualityMeasureCalculator {
         return 2 * Math.pow(0.5, summarizers.size());
     }
 
+    public static double calculateT11(LinguisticSummary summary, List<DataRow> dataRows) {
+        List<Summarizer> qualifiers = summary.getQualifiers();
+        if (qualifiers == null) { qualifiers = Collections.emptyList(); }
+
+        return 2 * Math.pow(0.5, qualifiers.size());
+    }
+
     public static double optimalSummary(
             LinguisticSummary summary,
             List<DataRow> dataRows,
@@ -217,6 +224,36 @@ public class SingleEntityQualityMeasureCalculator {
 
         return w1 * t1 + w2 * t2 + w3 * t3 + w4 * t4 + w5 * t5;
     }
+
+   public static double extendedOptimalSummary(
+           LinguisticSummary summary,
+           List<DataRow> dataRows,
+           double w1, double w2, double w3, double w4, double w5, double w6, double w7, double w8, double w9, double w10, double w11
+   ) {
+       String form = summary.getForm();
+       double sumWeights = w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8 + (form.equals("Form 2") ? (w9 + w10 + w11) : 0);
+       if (Math.abs(sumWeights - 1.0) > 1e-6) {
+           throw new IllegalArgumentException("Suma wag musi wynosić dokładnie 1.0");
+       }
+
+       double t1 = calculateT1(summary, dataRows);
+       double t2 = calculateT2(summary, dataRows);
+       double t3 = calculateT3(summary, dataRows);
+       double t4 = calculateT4(summary, dataRows);
+       double t5 = calculateT5(summary, dataRows);
+       double t6 = calculateT6(summary, dataRows);
+       double t7 = calculateT7(summary, dataRows);
+       double t8 = calculateT8(summary, dataRows);
+
+       if (form.equals("Form 2")) {
+           double t9 = calculateT9(summary, dataRows);
+           double t10 = calculateT10(summary, dataRows);
+           double t11 = calculateT11(summary, dataRows);
+           return w1 * t1 + w2 * t2 + w3 * t3 + w4 * t4 + w5 * t5 + w6 * t6 + w7 * t7 + w8 * t8 + w9 * t9 + w10 * t10 + w11 * t11;
+       } else {
+           return w1 * t1 + w2 * t2 + w3 * t3 + w4 * t4 + w5 * t5 + w6 * t6 + w7 * t7 + w8 * t8;
+       }
+   }
 
     //INFO: Raczej dobrze
     public static double calculateT6(LinguisticSummary summary, List<DataRow> dataRows) {

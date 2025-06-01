@@ -85,26 +85,59 @@ public class InputController {
     private TextField weight5;
 
     @FXML
+    private TextField weight6;
+
+    @FXML
+    private TextField weight7;
+
+    @FXML
+    private TextField weight8;
+
+    @FXML
+    private TextField weight9;
+
+    @FXML
+    private TextField weight10;
+
+    @FXML
+    private TextField weight11;
+
+    @FXML
     private TableView<Map<String, String>> summaryTable;
     @FXML
     private TableColumn<Map<String, String>, String> summaryCol;
 
     @FXML
     private void toggleWeightFields() {
+        boolean isOptimalSelected = false;
         for (Node node : qualityMeasuresContainer.getChildren()) {
             if (node instanceof CheckBox cb && "Optimal Summary".equals(cb.getText())) {
-                boolean isSelected = cb.isSelected();
-                weightsContainer.setVisible(isSelected);
-                weightsContainer.setManaged(isSelected);
-                if (!isSelected) {
-                    weight1.clear();
-                    weight2.clear();
-                    weight3.clear();
-                    weight4.clear();
-                    weight5.clear();
+                isOptimalSelected = cb.isSelected();
+                weightsContainer.setVisible(isOptimalSelected);
+                weightsContainer.setManaged(isOptimalSelected);
+                if (!isOptimalSelected) {
+                    weight1.clear(); weight2.clear(); weight3.clear(); weight4.clear(); weight5.clear();
+                    weight6.clear(); weight7.clear(); weight8.clear(); weight9.clear(); weight10.clear(); weight11.clear();
                 }
                 break;
             }
+        }
+        updateWeightFieldsState();
+    }
+
+    private void updateWeightFieldsState() {
+        boolean isForm2 = "Forma 2".equals(selectedForm);
+        // weight1–weight8 zawsze aktywne gdy widoczne
+        weight1.setDisable(false); weight2.setDisable(false); weight3.setDisable(false); weight4.setDisable(false);
+        weight5.setDisable(false); weight6.setDisable(false); weight7.setDisable(false); weight8.setDisable(false);
+        // weight9–weight11 tylko dla Formy 2
+        weight9.setDisable(!isForm2);
+        weight10.setDisable(!isForm2);
+        weight11.setDisable(!isForm2);
+        if (!isForm2) {
+            weight9.clear();
+            weight10.clear();
+            weight11.clear();
         }
     }
 
@@ -151,11 +184,12 @@ public class InputController {
 
                 if ("Forma 2".equals(selectedForm)) {
                     summarizerPane.setText("Wybierz sumaryzatory/kwalifikatory");
-                    disableAbsoluteQuantifiers(true); // Wyłącz kwantyfikatory bezwzględne
+                    disableAbsoluteQuantifiers(true);
                 } else {
                     summarizerPane.setText("Wybierz sumaryzatory");
-                    disableAbsoluteQuantifiers(false); // Włącz kwantyfikatory bezwzględne
+                    disableAbsoluteQuantifiers(false);
                 }
+                updateWeightFieldsState(); // <-- dodaj to tutaj
             }
         });
     }
@@ -221,6 +255,7 @@ public class InputController {
 
    private void initializeQualityMeasures() {
        List<String> qualityMeasures = new ArrayList<>(List.of("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10"));
+       qualityMeasures.add("T11");
        qualityMeasures.add("Optimal Summary");
 
        for (String measure : qualityMeasures) {
@@ -336,6 +371,12 @@ public class InputController {
         selectedQualityMeasures.forEach(System.out::println);
     }
 
+    private double parseWeightOrZero(TextField field) {
+        String text = field.getText();
+        if (text == null || text.isBlank()) return 0.0;
+        return Double.parseDouble(text);
+    }
+
 private void generateSummaries() {
     if (summarizers.isEmpty() || quantifiers.isEmpty()) {
         System.out.println("Brak wybranych sumaryzatorów lub kwantyfikatorów.");
@@ -370,14 +411,23 @@ private void generateSummaries() {
                 case "T8" -> value = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
                 case "T9" -> value = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
                 case "T10" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
+                case "T11" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
                 case "Optimal Summary" -> {
                     try {
-                        double w1 = Double.parseDouble(weight1.getText());
-                        double w2 = Double.parseDouble(weight2.getText());
-                        double w3 = Double.parseDouble(weight3.getText());
-                        double w4 = Double.parseDouble(weight4.getText());
-                        double w5 = Double.parseDouble(weight5.getText());
-                        value = SingleEntityQualityMeasureCalculator.optimalSummary(summary, dataRows, w1, w2, w3, w4, w5);
+                        double w1 = parseWeightOrZero(weight1);
+                        double w2 = parseWeightOrZero(weight2);
+                        double w3 = parseWeightOrZero(weight3);
+                        double w4 = parseWeightOrZero(weight4);
+                        double w5 = parseWeightOrZero(weight5);
+                        double w6 = parseWeightOrZero(weight6);
+                        double w7 = parseWeightOrZero(weight7);
+                        double w8 = parseWeightOrZero(weight8);
+                        double w9 = parseWeightOrZero(weight9);
+                        double w10 = parseWeightOrZero(weight10);
+                        double w11 = parseWeightOrZero(weight11);
+                        value = SingleEntityQualityMeasureCalculator.extendedOptimalSummary(
+                                summary, dataRows, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11
+                        );
                     } catch (NumberFormatException e) {
                         System.out.println("Wprowadź poprawne wartości wag dla Optimal Summary.");
                         return;

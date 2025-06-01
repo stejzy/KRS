@@ -74,6 +74,12 @@
             <TextField fx:id="weight3" promptText="Waga 3" prefWidth="60"/>
             <TextField fx:id="weight4" promptText="Waga 4" prefWidth="60"/>
             <TextField fx:id="weight5" promptText="Waga 5" prefWidth="60"/>
+            <TextField fx:id="weight6" promptText="Waga 6" prefWidth="60"/>
+            <TextField fx:id="weight7" promptText="Waga 7" prefWidth="60"/>
+            <TextField fx:id="weight8" promptText="Waga 8" prefWidth="60"/>
+            <TextField fx:id="weight9" promptText="Waga 9" prefWidth="60"/>
+            <TextField fx:id="weight10" promptText="Waga 10" prefWidth="60"/>
+            <TextField fx:id="weight11" promptText="Waga 11" prefWidth="60"/>
         </HBox>
     </VBox>
 
