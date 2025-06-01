@@ -397,6 +397,13 @@ private void generateSummaries() {
         System.out.println("\nPodsumowania bez sortowania:");
     }
 
+    // --- Kolumna numeru wiersza ---
+    TableColumn<Map<String, String>, String> rowNumberCol = new TableColumn<>("#");
+    rowNumberCol.setPrefWidth(40);
+    rowNumberCol.setCellValueFactory(cellData ->
+        new ReadOnlyStringWrapper(String.valueOf(summaryTable.getItems().indexOf(cellData.getValue()) + 1))
+    );
+
     // --- Ustawienia kolumny summaryCol ---
     summaryCol.setPrefWidth(600);
     summaryCol.setMinWidth(600);
@@ -427,7 +434,9 @@ private void generateSummaries() {
     });
 
     // --- Wyświetlanie w tabeli ---
-    summaryTable.getColumns().removeIf(col -> col != summaryCol);
+    summaryTable.getColumns().clear();
+    summaryTable.getColumns().add(rowNumberCol);
+    summaryTable.getColumns().add(summaryCol);
 
     for (String measure : selectedQualityMeasures) {
         if (measure.equals("summary")) continue;
