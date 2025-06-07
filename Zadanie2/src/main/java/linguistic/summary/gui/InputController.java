@@ -6,12 +6,16 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import linguistic.summary.*;
 import utils.DataRow;
 import utils.PostgresToDataRowLoader;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -34,10 +38,24 @@ public class InputController {
     private Label formLabel;
 
     @FXML
+    private RadioButton singleSummaryRadio;
+
+    @FXML
+    private RadioButton multiSummaryRadio;
+
+    @FXML
+    private ToggleGroup summaryTypeGroup;
+
+    @FXML
     private RadioButton form1;
 
     @FXML
     private RadioButton form2;
+
+    @FXML private CheckBox form1Check, form2Check, form3Check, form4Check;
+
+    @FXML
+    private HBox formButtonsBox;
 
     @FXML
     private ToggleGroup chooseForm;
@@ -62,6 +80,12 @@ public class InputController {
 
     @FXML
     private Button generateButton;
+
+    @FXML
+    private Button saveButton;
+
+    @FXML
+    private TextField rowsToSaveField;
 
     @FXML
     private ComboBox<String> qualitySortComboBox;
@@ -148,6 +172,7 @@ public class InputController {
         initializeQuantifiers();
         initializeQualityMeasures();
 
+
         summarizerPane.expandedProperty().addListener((obs, wasExpanded, isNowExpanded) -> {
             if (isNowExpanded) {
                 quantifierPane.setExpanded(false);
@@ -170,26 +195,135 @@ public class InputController {
         });
 
         generateButton.setOnAction(event -> generateSummaries());
+        saveButton.setOnAction(event -> saveSummariesToFile());
+
         summaryCol.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().get("summary")));
+    }
+
+    private void saveSummariesToFile() {
+        int rowsToSave = summaryTable.getItems().size();
+        String input = rowsToSaveField.getText();
+        if (input != null && !input.isBlank()) {
+            try {
+                int n = Integer.parseInt(input);
+                if (n > 0 && n < rowsToSave) {
+                    rowsToSave = n;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Niepoprawna liczba wierszy do zapisu.");
+            }
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz podsumowania");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Plik tekstowy", "*.txt"));
+        File file = fileChooser.showSaveDialog(saveButton.getScene().getWindow());
+        if (file == null) return;
+
+        try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+            // Nagłówki
+            List<String> headers = summaryTable.getColumns().stream()
+                    .map(TableColumn::getText)
+                    .collect(Collectors.toList());
+            writer.println(String.join("\t", headers));
+            writer.println("-------");
+
+            // Wiersze
+            for (int i = 0; i < rowsToSave; i++) {
+                Map<String, String> row = summaryTable.getItems().get(i);
+                List<String> values = new ArrayList<>();
+                for (TableColumn<Map<String, String>, ?> col : summaryTable.getColumns()) {
+                    String columnHeader = col.getText();
+                    if ("#".equals(columnHeader)) {
+                        values.add(String.valueOf(i + 1));
+                    } else if ("summary".equalsIgnoreCase(columnHeader) || "Podsumowanie".equalsIgnoreCase(columnHeader)) {
+                        values.add(row.getOrDefault("summary", ""));
+                    } else {
+                        values.add(row.getOrDefault(columnHeader, ""));
+                    }
+                }
+                writer.println(String.join("\t", values));
+                writer.println("-------");
+            }
+
+            System.out.println("Podsumowania zapisane do pliku: " + file.getAbsolutePath());
+        } catch (Exception e) {
+            System.out.println("Błąd zapisu: " + e.getMessage());
+        }
+    }
+
+
+    private void clearSelectedSummarizers() {
+        for (ToggleGroup group : toggleGroups.values()) {
+            group.selectToggle(null);
+        }
+        summarizers.clear();
+    }
+
+    private void clearSelectedQuantifiers() {
+        for (Node titledPaneNode : quantifierContainer.getChildren()) {
+            if (titledPaneNode instanceof TitledPane titledPane) {
+                VBox vbox = (VBox) titledPane.getContent();
+                for (Node node : vbox.getChildren()) {
+                    if (node instanceof CheckBox cb) {
+                        cb.setSelected(false);
+                    }
+                }
+            }
+        }
+        quantifiers.clear();
     }
 
     private void initializeFormSelection() {
         form1.setSelected(true);
         selectedForm = form1.getText();
 
+        // Ustawienie widoczności form dla jednopodmiotowych podsumowań
+        form1.setVisible(true); form1.setManaged(true);
+        form2.setVisible(true); form2.setManaged(true);
+
+        summaryTypeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            boolean isMulti = newToggle == multiSummaryRadio;
+
+            // RadioButtony tylko dla jednopodmiotowych
+            form1.setVisible(!isMulti); form1.setManaged(!isMulti);
+            form2.setVisible(!isMulti); form2.setManaged(!isMulti);
+
+            // CheckBoxy tylko dla wielopodmiotowych
+            form1Check.setVisible(isMulti); form1Check.setManaged(isMulti);
+            form2Check.setVisible(isMulti); form2Check.setManaged(isMulti);
+            form3Check.setVisible(isMulti); form3Check.setManaged(isMulti);
+            form4Check.setVisible(isMulti); form4Check.setManaged(isMulti);
+
+            // Reset wyborów
+            form1.setSelected(!isMulti);
+            form2.setSelected(false);
+
+            form1Check.setSelected(false);
+            form2Check.setSelected(false);
+            form3Check.setSelected(false);
+            form4Check.setSelected(false);
+
+            clearSelectedSummarizers();
+            clearSelectedQuantifiers();
+            summaryTable.getItems().clear();
+
+            disableAbsoluteQuantifiers(isMulti || "Forma 2".equals(selectedForm));
+        });
+
         chooseForm.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 RadioButton selected = (RadioButton) newToggle;
                 selectedForm = selected.getText();
-
+                boolean isMulti = multiSummaryRadio.isSelected();
                 if ("Forma 2".equals(selectedForm)) {
                     summarizerPane.setText("Wybierz sumaryzatory/kwalifikatory");
-                    disableAbsoluteQuantifiers(true);
                 } else {
                     summarizerPane.setText("Wybierz sumaryzatory");
-                    disableAbsoluteQuantifiers(false);
                 }
-                updateWeightFieldsState(); // <-- dodaj to tutaj
+
+                disableAbsoluteQuantifiers(isMulti || "Forma 2".equals(selectedForm));
+                updateWeightFieldsState();
             }
         });
     }
@@ -253,33 +387,61 @@ public class InputController {
         }
     }
 
-   private void initializeQualityMeasures() {
-       List<String> qualityMeasures = new ArrayList<>(List.of("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10"));
-       qualityMeasures.add("T11");
-       qualityMeasures.add("Optimal Summary");
+    private final List<String> singleEntityQualityMeasures = new ArrayList<>(List.of(
+            "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "Optimal Summary"
+    ));
 
-       for (String measure : qualityMeasures) {
-           CheckBox cb = new CheckBox(measure);
-           cb.setUserData(measure);
+    private final List<String> multiEntityQualityMeasures = new ArrayList<>(List.of("T"));
 
-           if ("Optimal Summary".equals(measure)) {
-               cb.setOnAction(e -> {
-                   toggleWeightFields();
-                   updateSelectedQualityMeasures();
-               });
-           } else {
-               cb.setOnAction(e -> updateSelectedQualityMeasures());
+       private void initializeQualityMeasures() {
+           // Listener do przełączania miar w zależności od typu podsumowania
+           summaryTypeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+               if (newToggle == singleSummaryRadio) {
+                   loadQualityMeasures(singleEntityQualityMeasures);
+               } else if (newToggle == multiSummaryRadio) {
+                   loadQualityMeasures(multiEntityQualityMeasures);
+               }
+           });
+           // Domyślnie załaduj miary dla jednopodmiotowych
+           loadQualityMeasures(singleEntityQualityMeasures);
+       }
+
+     private void loadQualityMeasures(List<String> measures) {
+           qualityMeasuresContainer.getChildren().clear();
+           boolean hasOptimal = false;
+           for (String measure : measures) {
+               CheckBox cb = new CheckBox(measure);
+               cb.setUserData(measure);
+
+               if ((measures == singleEntityQualityMeasures && "T1".equals(measure)) ||
+                   (measures == multiEntityQualityMeasures && "T".equals(measure))) {
+                   cb.setSelected(true);
+               }
+
+               if ("Optimal Summary".equals(measure)) {
+                   hasOptimal = true;
+                   cb.setOnAction(e -> {
+                       toggleWeightFields();
+                       updateSelectedQualityMeasures();
+                   });
+               } else {
+                   cb.setOnAction(e -> updateSelectedQualityMeasures());
+               }
+               qualityMeasuresContainer.getChildren().add(cb);
            }
-           qualityMeasuresContainer.getChildren().add(cb);
+           if (!qualityMeasuresContainer.getChildren().isEmpty()) {
+               Node first = qualityMeasuresContainer.getChildren().get(0);
+               VBox.setMargin(first, new Insets(10, 0, 0, 0));
+           }
+           // Ukryj i wyczyść wagi jeśli nie ma Optimal Summary
+           if (!hasOptimal) {
+               weightsContainer.setVisible(false);
+               weightsContainer.setManaged(false);
+               weight1.clear(); weight2.clear(); weight3.clear(); weight4.clear(); weight5.clear();
+               weight6.clear(); weight7.clear(); weight8.clear(); weight9.clear(); weight10.clear(); weight11.clear();
+           }
+           updateSelectedQualityMeasures();
        }
-
-       if (!qualityMeasuresContainer.getChildren().isEmpty()) {
-           Node first = qualityMeasuresContainer.getChildren().get(0);
-           VBox.setMargin(first, new Insets(10, 0, 0, 0));
-       }
-
-       updateSelectedQualityMeasures();
-   }
 
 
     private void initializeQuantifiers() {
@@ -377,137 +539,196 @@ public class InputController {
         return Double.parseDouble(text);
     }
 
-private void generateSummaries() {
-    if (summarizers.isEmpty() || quantifiers.isEmpty()) {
-        System.out.println("Brak wybranych sumaryzatorów lub kwantyfikatorów.");
-        return;
+    private List<Integer> getSelectedMultiForms() {
+        List<Integer> forms = new ArrayList<>();
+        if (form1Check.isSelected()) forms.add(1);
+        if (form2Check.isSelected()) forms.add(2);
+        if (form3Check.isSelected()) forms.add(3);
+        if (form4Check.isSelected()) forms.add(4);
+        return forms;
     }
 
-    if (selectedQualityMeasures.isEmpty()) {
-        System.out.println("Musisz wybrać co najmniej jedną miarę jakości.");
-        return;
-    }
+    private void generateSummaries() {
+        if (summarizers.isEmpty() || quantifiers.isEmpty()) {
+            System.out.println("Brak wybranych sumaryzatorów lub kwantyfikatorów.");
+            return;
+        }
 
-    boolean useSecondForm = "Forma 2".equals(selectedForm);
+        if (selectedQualityMeasures.isEmpty()) {
+            System.out.println("Musisz wybrać co najmniej jedną miarę jakości.");
+            return;
+        }
 
-    if (useSecondForm && summarizers.size() < 2) {
-        System.out.println("Dla drugiej formy musisz wybrać co najmniej dwa sumaryzatory.");
-        return;
-    }
+        boolean isMulti = multiSummaryRadio.isSelected();
 
-    List<LinguisticSummary> summaries = SingleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, useSecondForm);
+        List<? extends LinguisticSummaryBase> summaries;
 
-    for (LinguisticSummary summary : summaries) {
-        for (String measure : selectedQualityMeasures) {
-            double value;
-            switch (measure) {
-                case "T1" -> value = SingleEntityQualityMeasureCalculator.calculateT1(summary, dataRows);
-                case "T2" -> value = SingleEntityQualityMeasureCalculator.calculateT2(summary, dataRows);
-                case "T3" -> value = SingleEntityQualityMeasureCalculator.calculateT3(summary, dataRows);
-                case "T4" -> value = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
-                case "T5" -> value = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
-                case "T6" -> value = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
-                case "T7" -> value = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
-                case "T8" -> value = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
-                case "T9" -> value = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
-                case "T10" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
-                case "T11" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
-                case "Optimal Summary" -> {
-                    try {
-                        double w1 = parseWeightOrZero(weight1);
-                        double w2 = parseWeightOrZero(weight2);
-                        double w3 = parseWeightOrZero(weight3);
-                        double w4 = parseWeightOrZero(weight4);
-                        double w5 = parseWeightOrZero(weight5);
-                        double w6 = parseWeightOrZero(weight6);
-                        double w7 = parseWeightOrZero(weight7);
-                        double w8 = parseWeightOrZero(weight8);
-                        double w9 = parseWeightOrZero(weight9);
-                        double w10 = parseWeightOrZero(weight10);
-                        double w11 = parseWeightOrZero(weight11);
-                        value = SingleEntityQualityMeasureCalculator.extendedOptimalSummary(
-                                summary, dataRows, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11
-                        );
-                    } catch (NumberFormatException e) {
-                        System.out.println("Wprowadź poprawne wartości wag dla Optimal Summary.");
-                        return;
+        if (!isMulti) {
+            boolean useSecondForm = "Forma 2".equals(selectedForm);
+
+            if (useSecondForm && summarizers.size() < 2) {
+                System.out.println("Dla drugiej formy musisz wybrać co najmniej dwa sumaryzatory.");
+                return;
+            }
+
+            // Jednopodmiotowe podsumowania
+            summaries = SingleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, useSecondForm);
+
+            for (LinguisticSummaryBase baseSummary : summaries) {
+                if (!(baseSummary instanceof LinguisticSummary summary)) {
+                    continue;
+                }
+
+                for (String measure : selectedQualityMeasures) {
+                    double value;
+                    switch (measure) {
+                        case "T1" -> value = SingleEntityQualityMeasureCalculator.calculateT1(summary, dataRows);
+                        case "T2" -> value = SingleEntityQualityMeasureCalculator.calculateT2(summary, dataRows);
+                        case "T3" -> value = SingleEntityQualityMeasureCalculator.calculateT3(summary, dataRows);
+                        case "T4" -> value = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
+                        case "T5" -> value = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
+                        case "T6" -> value = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
+                        case "T7" -> value = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
+                        case "T8" -> value = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
+                        case "T9" -> value = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
+                        case "T10" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
+                        case "T11" -> value = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
+                        case "Optimal Summary" -> {
+                            try {
+                                double w1 = parseWeightOrZero(weight1);
+                                double w2 = parseWeightOrZero(weight2);
+                                double w3 = parseWeightOrZero(weight3);
+                                double w4 = parseWeightOrZero(weight4);
+                                double w5 = parseWeightOrZero(weight5);
+                                double w6 = parseWeightOrZero(weight6);
+                                double w7 = parseWeightOrZero(weight7);
+                                double w8 = parseWeightOrZero(weight8);
+                                double w9 = parseWeightOrZero(weight9);
+                                double w10 = parseWeightOrZero(weight10);
+                                double w11 = parseWeightOrZero(weight11);
+                                value = SingleEntityQualityMeasureCalculator.extendedOptimalSummary(
+                                        summary, dataRows, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11
+                                );
+                            } catch (NumberFormatException e) {
+                                System.out.println("Wprowadź poprawne wartości wag dla Optimal Summary.");
+                                return;
+                            }
+                        }
+                        default -> throw new IllegalArgumentException("Nieznana miara jakości: " + measure);
+                    }
+                    summary.setQualityMeasure(measure, value);
+                }
+            }
+        } else {
+
+            List<Integer> selectedForms = getSelectedMultiForms();
+            if (selectedForms.isEmpty()) {
+                System.out.println("Wybierz przynajmniej jedną formę dla wielopodmiotowych.");
+                return;
+            }
+
+            List<LinguisticSummaryBase> allSummaries = new ArrayList<>();
+            List<String> uniqueGroups = dataRows.stream()
+                    .map(row -> row.getStringValue("Gender"))
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            for (int formNumber : selectedForms) {
+                boolean needsTwoSummarizers = formNumber == 2 || formNumber == 3;
+                if (needsTwoSummarizers && summarizers.size() < 2) {
+                    System.out.println("Dla formy " + formNumber + " musisz wybrać co najmniej dwa sumaryzatory.");
+                    continue;
+                }
+
+                summaries = MultipleEntitySummaryGenerator.generateAllSummaries(
+                        quantifiers, summarizers, formNumber, uniqueGroups);
+
+                for (LinguisticSummaryBase baseSummary : summaries) {
+                    if (baseSummary instanceof MultipleEntityLinguisticSummary summary) {
+                        double t = MultipleEntityQualityMeasureCalculator.calculateT(summary, dataRows);
+                        summary.setQualityMeasure("T", t);
                     }
                 }
-                default -> throw new IllegalArgumentException("Nieznana miara jakości: " + measure);
+                allSummaries.addAll(summaries);
             }
-            summary.setQualityMeasure(measure, value);
+            summaries = allSummaries;
         }
-    }
 
-    String selectedSortMeasure = qualitySortComboBox.getValue();
-    if (selectedSortMeasure != null && !selectedSortMeasure.isEmpty()) {
-        summaries.sort(Comparator.comparingDouble((LinguisticSummary s) -> s.getQualityMeasure(selectedSortMeasure)).reversed());
-        System.out.println("\nPodsumowania posortowane malejąco według " + selectedSortMeasure + ":");
-    } else {
-        System.out.println("\nPodsumowania bez sortowania:");
-    }
-
-    // --- Kolumna numeru wiersza ---
-    TableColumn<Map<String, String>, String> rowNumberCol = new TableColumn<>("#");
-    rowNumberCol.setPrefWidth(40);
-    rowNumberCol.setCellValueFactory(cellData ->
-        new ReadOnlyStringWrapper(String.valueOf(summaryTable.getItems().indexOf(cellData.getValue()) + 1))
-    );
-
-    // --- Ustawienia kolumny summaryCol ---
-    summaryCol.setPrefWidth(600);
-    summaryCol.setMinWidth(600);
-    summaryCol.setMaxWidth(600);
-    summaryCol.setCellFactory(col -> new TableCell<>() {
-        private final Label label = new Label();
-        {
-            label.setWrapText(true);
-            label.setPrefWidth(600);
-            label.setMinHeight(Region.USE_PREF_SIZE);
-            setGraphic(label);
+        // Sortowanie
+        String selectedSortMeasure = qualitySortComboBox.getValue();
+        if (selectedSortMeasure != null && !selectedSortMeasure.isEmpty()) {
+            summaries.sort(Comparator.comparingDouble((LinguisticSummaryBase s) -> s.getQualityMeasure(selectedSortMeasure)).reversed());
+            System.out.println("\nPodsumowania posortowane malejąco według " + selectedSortMeasure + ":");
+        } else {
+            System.out.println("\nPodsumowania bez sortowania:");
         }
-        @Override
-        protected void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                label.setText(null);
-                setPrefHeight(Control.USE_COMPUTED_SIZE);
-            } else {
-                label.setText(item);
+
+        // Kolumna numer wiersza
+        summaryTable.getColumns().clear();
+
+        TableColumn<Map<String, String>, String> rowNumberCol = new TableColumn<>("#");
+        rowNumberCol.setPrefWidth(40);
+        rowNumberCol.setCellValueFactory(cellData ->
+                new ReadOnlyStringWrapper(String.valueOf(summaryTable.getItems().indexOf(cellData.getValue()) + 1))
+        );
+
+        summaryTable.getColumns().add(rowNumberCol);
+
+        //Kolumna summary
+        summaryCol.setPrefWidth(600);
+        summaryCol.setMinWidth(600);
+        summaryCol.setMaxWidth(600);
+        summaryCol.setCellFactory(col -> new TableCell<>() {
+            private final Label label = new Label();
+            {
+                label.setWrapText(true);
                 label.setPrefWidth(600);
                 label.setMinHeight(Region.USE_PREF_SIZE);
-                label.heightProperty().addListener((obs, oldHeight, newHeight) -> {
-                    setPrefHeight(newHeight.doubleValue() + 10);
-                });
+                setGraphic(label);
             }
-        }
-    });
 
-    // --- Wyświetlanie w tabeli ---
-    summaryTable.getColumns().clear();
-    summaryTable.getColumns().add(rowNumberCol);
-    summaryTable.getColumns().add(summaryCol);
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    label.setText(null);
+                    setPrefHeight(Control.USE_COMPUTED_SIZE);
+                } else {
+                    label.setText(item);
+                    label.setPrefWidth(600);
+                    label.setMinHeight(Region.USE_PREF_SIZE);
+                    label.heightProperty().addListener((obs, oldHeight, newHeight) -> {
+                        setPrefHeight(newHeight.doubleValue() + 10);
+                    });
+                }
+            }
+        });
+        summaryTable.getColumns().add(summaryCol);
 
-    for (String measure : selectedQualityMeasures) {
-        if (measure.equals("summary")) continue;
-        TableColumn<Map<String, String>, String> col = new TableColumn<>(measure);
-        col.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().get(measure)));
-        summaryTable.getColumns().add(col);
-    }
-
-    summaryTable.getItems().clear();
-    for (LinguisticSummary summary : summaries) {
-        Map<String, String> row = new HashMap<>();
-        row.put("summary", summary.toString());
         for (String measure : selectedQualityMeasures) {
-            row.put(measure, String.format("%.3f", summary.getQualityMeasure(measure)));
+            if (measure.equals("summary")) continue;
+            TableColumn<Map<String, String>, String> col = new TableColumn<>(measure);
+            col.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().get(measure)));
+            summaryTable.getColumns().add(col);
         }
-        summaryTable.getItems().add(row);
+
+        // Dodanie danych do tabeli
+        summaryTable.getItems().clear();
+        for (LinguisticSummaryBase baseSummary : summaries) {
+            Map<String, String> row = new HashMap<>();
+            row.put("summary", baseSummary.toString());
+            for (String measure : selectedQualityMeasures) {
+                row.put(measure, String.format("%.3f", baseSummary.getQualityMeasure(measure)));
+            }
+            summaryTable.getItems().add(row);
+        }
+
+        // Wypisywanie podsumowań w konsoli
+        for (LinguisticSummaryBase baseSummary : summaries) {
+            System.out.println(baseSummary);
+        }
     }
 
-    // --- Wypisywanie w konsoli ---
-    for (LinguisticSummary summary : summaries) {
-        System.out.println(summary);
-    }
-}
+
 }

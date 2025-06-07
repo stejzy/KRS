@@ -2,7 +2,7 @@ package linguistic.summary;
 
 import java.util.*;
 
-public class LinguisticSummary {
+public class LinguisticSummary implements LinguisticSummaryBase{
     private final Quantifier quantifier;
     private final List<Summarizer> summarizers;
     private final List<Summarizer> qualifiers; // null if Form 1
@@ -33,17 +33,16 @@ public class LinguisticSummary {
         return form;
     }
 
+    @Override
     public void setQualityMeasure(String name, double value) {
         qualityMeasures.put(name, value);
     }
 
-    public Double getQualityMeasure(String name) {
+    @Override
+    public double getQualityMeasure(String name) {
         return qualityMeasures.get(name);
     }
 
-    public Map<String, Double> getAllQualityMeasures() {
-        return qualityMeasures;
-    }
 
     @Override
     public String toString() {

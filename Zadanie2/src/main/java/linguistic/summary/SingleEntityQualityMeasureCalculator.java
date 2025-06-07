@@ -23,12 +23,12 @@ public class SingleEntityQualityMeasureCalculator {
 
                 if (summarizers.size() == 1) {
                     membership = summarizers.getFirst().getMembership(
-                            row.getValue(summarizers.getFirst().getVariable().getName())
+                            row.getNumericValue(summarizers.getFirst().getVariable().getName())
                     );
                 } else {
                     membership = 1.0;
                     for (Summarizer s : summarizers) {
-                        double value = row.getValue(s.getVariable().getName());
+                        double value = row.getNumericValue(s.getVariable().getName());
                         double m = s.getMembership(value);
                         membership = Math.min(membership, m);
                     }
@@ -59,12 +59,12 @@ public class SingleEntityQualityMeasureCalculator {
                 double qualifierMembership;
                 if (qualifiers.size() == 1) {
                     qualifierMembership = qualifiers.getFirst().getMembership(
-                            row.getValue(qualifiers.getFirst().getVariable().getName())
+                            row.getNumericValue(qualifiers.getFirst().getVariable().getName())
                     );
                 } else {
                     qualifierMembership = 1.0;
                     for (Summarizer q : qualifiers) {
-                        double m = q.getMembership(row.getValue(q.getVariable().getName()));
+                        double m = q.getMembership(row.getNumericValue(q.getVariable().getName()));
                         qualifierMembership = Math.min(qualifierMembership, m);
                     }
                 }
@@ -72,12 +72,12 @@ public class SingleEntityQualityMeasureCalculator {
                 double summarizerMembership;
                 if (summarizers.size() == 1) {
                     summarizerMembership = summarizers.getFirst().getMembership(
-                            row.getValue(summarizers.getFirst().getVariable().getName())
+                            row.getNumericValue(summarizers.getFirst().getVariable().getName())
                     );
                 } else {
                     summarizerMembership = 1.0;
                     for (Summarizer s : summarizers) {
-                        double m = s.getMembership(row.getValue(s.getVariable().getName()));
+                        double m = s.getMembership(row.getNumericValue(s.getVariable().getName()));
                         summarizerMembership = Math.min(summarizerMembership, m);
                     }
                 }
@@ -105,9 +105,21 @@ public class SingleEntityQualityMeasureCalculator {
         double geometricMean = 1.0;
 
         for(Summarizer sum : summarizers){
-            String labelName = sum.getLabel();
-            FuzzySet set = sum.getVariable().getLabel(labelName);
-            geometricMean *= FuzzySetOperations.fuzziness(set);
+            double count = 0.0;
+
+            for (DataRow row : dataRows) {
+                double value = row.getNumericValue(sum.getVariable().getName());
+                if (sum.getMembership(value) > 0) {
+                    count++;
+                }
+            }
+
+            double proportion = (double) count / dataRows.size();
+            geometricMean *= proportion;
+
+//            String labelName = sum.getLabel();
+//            FuzzySet set = sum.getVariable().getLabel(labelName);
+//            geometricMean *= FuzzySetOperations.fuzziness(set);
         }
 
         System.out.println("Mean 2:");
@@ -129,10 +141,10 @@ public class SingleEntityQualityMeasureCalculator {
 
         for (DataRow row : dataRows) {
             boolean summarizerActive = summarizers.stream()
-                    .allMatch(sum -> sum.getMembership(row.getValue(sum.getVariable().getName())) > 0);
+                    .allMatch(sum -> sum.getMembership(row.getNumericValue(sum.getVariable().getName())) > 0);
 
             boolean qualifierActive = qualifiers.stream()
-                    .allMatch(qual -> qual.getMembership(row.getValue(qual.getVariable().getName())) > 0);
+                    .allMatch(qual -> qual.getMembership(row.getNumericValue(qual.getVariable().getName())) > 0);
 
             if (form.equals("Form 2")) {
                 if (summarizerActive && qualifierActive) numerator++;
@@ -165,7 +177,7 @@ public class SingleEntityQualityMeasureCalculator {
             System.out.println(dataRows.size());
 
             for (DataRow row : dataRows) {
-                double value = row.getValue(summarizer.getVariable().getName());
+                double value = row.getNumericValue(summarizer.getVariable().getName());
                 if (summarizer.getMembership(value) > 0) {
                     count++;
                 }
@@ -302,11 +314,24 @@ public class SingleEntityQualityMeasureCalculator {
         double geometricMean = 1.0;
 
         for(Summarizer sum : summarizers){
-            String labelName = sum.getLabel();
-            FuzzySet set = sum.getVariable().getLabel(labelName);
+            double count = 0.0;
 
-            geometricMean *= (set.getFunction().clm() / sum.getVariable().getUniverse().length);
+            for (DataRow row : dataRows) {
+                double value = row.getNumericValue(sum.getVariable().getName());
+                if (sum.getMembership(value) > 0) {
+                    count += sum.getMembership(value);
+                }
+            }
+
+            double proportion = (double) count / dataRows.size();
+            geometricMean *= proportion;
+
+//            String labelName = sum.getLabel();
+//            FuzzySet set = sum.getVariable().getLabel(labelName);
+//            geometricMean *= (set.getFunction().clm() / sum.getVariable().getUniverse().length);
+
         }
+
 
 //        System.out.println("Mean 8:");
 //        System.out.println(geometricMean);
@@ -327,10 +352,29 @@ public class SingleEntityQualityMeasureCalculator {
         double geometricMean = 1.0;
 
         for(Summarizer qual : qualifiers){
-            String labelName = qual.getLabel();
-            FuzzySet set = qual.getVariable().getLabel(labelName);
-            geometricMean *= FuzzySetOperations.fuzziness(set);
+            double count = 0.0;
+
+            for (DataRow row : dataRows) {
+                double value = row.getNumericValue(qual.getVariable().getName());
+                if (qual.getMembership(value) > 0) {
+                    count++;
+                }
+            }
+
+            double proportion = (double) count / dataRows.size();
+            geometricMean *= proportion;
+
+//            String labelName = sum.getLabel();
+//            FuzzySet set = sum.getVariable().getLabel(labelName);
+//            geometricMean *= FuzzySetOperations.fuzziness(set);
         }
+
+        //INFO: Stara wersja
+//        for(Summarizer qual : qualifiers){
+//            String labelName = qual.getLabel();
+//            FuzzySet set = qual.getVariable().getLabel(labelName);
+//            geometricMean *= FuzzySetOperations.fuzziness(set);
+//        }
 
 //        System.out.println("Mean 9:");
 //        System.out.println(geometricMean);
@@ -345,12 +389,26 @@ public class SingleEntityQualityMeasureCalculator {
 
         double geometricMean = 1.0;
 
-        for(Summarizer qual : qualifiers){
-            String labelName = qual.getLabel();
-            FuzzySet set = qual.getVariable().getLabel(labelName);
+        for(Summarizer qual : qualifiers) {
+            double count = 0.0;
 
-            geometricMean *= (set.getFunction().clm() / qual.getVariable().getUniverse().length);
+            for (DataRow row : dataRows) {
+                double value = row.getNumericValue(qual.getVariable().getName());
+                if (qual.getMembership(value) > 0) {
+                    count += qual.getMembership(value);
+                }
+            }
+
+            double proportion = (double) count / dataRows.size();
+            geometricMean *= proportion;
         }
+
+//        for(Summarizer qual : qualifiers){
+//            String labelName = qual.getLabel();
+//            FuzzySet set = qual.getVariable().getLabel(labelName);
+//
+//            geometricMean *= (set.getFunction().clm() / qual.getVariable().getUniverse().length);
+//        }
 
 //        System.out.println("Mean 10:");
 //        System.out.println(geometricMean);

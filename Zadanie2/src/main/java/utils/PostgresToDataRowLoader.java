@@ -12,7 +12,6 @@ public class PostgresToDataRowLoader {
 
     public static List<DataRow> loadDataRows() {
         List<DataRow> dataRows = new ArrayList<>();
-
         List<String> dbColumns = new ArrayList<>(COLUMN_NAME_MAPPING.keySet());
 
         StringBuilder queryBuilder = new StringBuilder("SELECT ");
@@ -27,14 +26,19 @@ public class PostgresToDataRowLoader {
              ResultSet resultSet = statement.executeQuery(queryBuilder.toString())) {
 
             while (resultSet.next()) {
-                Map<String, Double> attributes = new HashMap<>();
+                Map<String, Object> attributes = new HashMap<>();
                 for (String dbColumn : dbColumns) {
-                    double value = resultSet.getDouble(dbColumn);
-                    if (resultSet.wasNull()) {
-                        value = 0.0;
-                    }
                     String label = COLUMN_NAME_MAPPING.get(dbColumn);
-                    attributes.put(label, value);
+                    if ("gender".equals(dbColumn)) {
+                        String gender = resultSet.getString(dbColumn);
+                        attributes.put(label, gender);
+                    } else {
+                        double value = resultSet.getDouble(dbColumn);
+                        if (resultSet.wasNull()) {
+                            value = 0.0;
+                        }
+                        attributes.put(label, value);
+                    }
                 }
                 dataRows.add(new DataRow(attributes));
             }
@@ -48,6 +52,7 @@ public class PostgresToDataRowLoader {
 
     private static Map<String, String> createColumnNameMapping() {
         Map<String, String> map = new HashMap<>();
+        map.put("gender", "Gender");
         map.put("age", "Age");
         map.put("height_cm", "Height (cm)");
         map.put("weight_kg", "Weight (kg)");

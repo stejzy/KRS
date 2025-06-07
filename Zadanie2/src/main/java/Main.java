@@ -2,10 +2,7 @@ import linguistic.summary.*;
 import utils.DataRow;
 import utils.PostgresToDataRowLoader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 
 public class Main {
@@ -18,13 +15,24 @@ public class Main {
 //            System.out.println("Row " + (i + 1) + ": " + dataRows.get(i));
 //        }
 
+
         Scanner scanner = new Scanner(System.in);
         List<Summarizer> summarizers = new ArrayList<>();
         List<Quantifier> quantifiers = new ArrayList<>();
 
-        // === KROK 1: WYBÓR FORMY===
-        System.out.print("Use second form? (true/false): ");
-        boolean useSecondForm = scanner.nextBoolean();
+        // === KROK 1: WYBÓR LICZNOSCI PODMIOTOW PODSUMOWANIA ===
+        System.out.print("Podsumowanie jednopodmiotowe (1) czy wielopodmiotowe (2)? ");
+        int summaryType = scanner.nextInt();
+
+        // === KROK 2: WYBÓR FORMY PODSUMOWANIA ===
+        int maxForms = (summaryType == 1) ? 2 : 4;
+        System.out.print("Wybierz formę podsumowania (1-" + maxForms + "): ");
+        int formNumber = scanner.nextInt();
+
+        if (formNumber < 1 || formNumber > maxForms) {
+            System.out.println("Nieprawidłowa forma. Zakończono program.");
+            return;
+        }
 
         // === KROK 2: TWORZENIE SUMARYZATORÓW ===
         while (true) {
@@ -118,7 +126,7 @@ public class Main {
                 }
             }
 
-            if (!useSecondForm && !absoluteQuantifiers.isEmpty()) {
+            if (formNumber == 1 && !absoluteQuantifiers.isEmpty()) {
                 System.out.println("Absolute quantifiers:");
                 for (int i = 0; i < absoluteQuantifiers.size(); i++) {
                     // Indeks kontynuujemy po względnych
@@ -155,38 +163,56 @@ public class Main {
 
 
         // === KROK 4: GENEROWANIE PODSUMOWAN ===
-        List<LinguisticSummary> summaries = SingleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, useSecondForm);
+        List<? extends LinguisticSummaryBase> summaries;
 
+        if (summaryType == 1) {
+            boolean useSecondForm = (formNumber == 2);
+            summaries = SingleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, useSecondForm);
+        } else {
+            List<String> uniqueGenders = dataRows.stream()
+                    .map(row -> row.getStringValue("Gender"))
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            summaries = MultipleEntitySummaryGenerator.generateAllSummaries(quantifiers, summarizers, formNumber, uniqueGenders);
+        }
 
 
         // === KROK 5: OBLICZANIE MIAR JAKOŚCI DLA KAŻDEGO PODSUMOWANIA ===
-        for (LinguisticSummary summary : summaries) {
-//            double t1 = SingleEntityQualityMeasureCalculator.calculateT1(summary, dataRows);
-//            double t2 = SingleEntityQualityMeasureCalculator.calculateT2(summary, dataRows);
-//            double t3 = SingleEntityQualityMeasureCalculator.calculateT3(summary, dataRows);
-            double t4 = SingleEntityQualityMeasureCalculator.calculateT4(summary, dataRows);
-//            double t5 = SingleEntityQualityMeasureCalculator.calculateT5(summary, dataRows);
-//            double t6 = SingleEntityQualityMeasureCalculator.calculateT6(summary, dataRows);
-//            double t7 = SingleEntityQualityMeasureCalculator.calculateT7(summary, dataRows);
-//            double t8 = SingleEntityQualityMeasureCalculator.calculateT8(summary, dataRows);
-//            double t9 = SingleEntityQualityMeasureCalculator.calculateT9(summary, dataRows);
-//            double t10 = SingleEntityQualityMeasureCalculator.calculateT10(summary, dataRows);
+        for (LinguisticSummaryBase summary : summaries) {
+            if (summaryType == 1 && summary instanceof LinguisticSummary singleSummary) {
+                double t1 = SingleEntityQualityMeasureCalculator.calculateT1(singleSummary, dataRows);
+                double t2 = SingleEntityQualityMeasureCalculator.calculateT2(singleSummary, dataRows);
+                double t3 = SingleEntityQualityMeasureCalculator.calculateT3(singleSummary, dataRows);
+                double t4 = SingleEntityQualityMeasureCalculator.calculateT4(singleSummary, dataRows);
+                double t5 = SingleEntityQualityMeasureCalculator.calculateT5(singleSummary, dataRows);
+                double t6 = SingleEntityQualityMeasureCalculator.calculateT6(singleSummary, dataRows);
+                double t7 = SingleEntityQualityMeasureCalculator.calculateT7(singleSummary, dataRows);
+                double t8 = SingleEntityQualityMeasureCalculator.calculateT8(singleSummary, dataRows);
+                double t9 = SingleEntityQualityMeasureCalculator.calculateT9(singleSummary, dataRows);
+                double t10 = SingleEntityQualityMeasureCalculator.calculateT10(singleSummary, dataRows);
 
-//            summary.setQualityMeasure("T1", t1);
-//            summary.setQualityMeasure("T2", t2);
-//            summary.setQualityMeasure("T3", t3);
-            summary.setQualityMeasure("T4", t4);
-//            summary.setQualityMeasure("T5", t5);
-//            summary.setQualityMeasure("T6", t6);
-//            summary.setQualityMeasure("T7", t7);
-//            summary.setQualityMeasure("T8", t8);
-//            summary.setQualityMeasure("T9", t9);
-//            summary.setQualityMeasure("T10", t10);
+                singleSummary.setQualityMeasure("T1", t1);
+                singleSummary.setQualityMeasure("T2", t2);
+                singleSummary.setQualityMeasure("T3", t3);
+                singleSummary.setQualityMeasure("T4", t4);
+                singleSummary.setQualityMeasure("T5", t5);
+                singleSummary.setQualityMeasure("T6", t6);
+                singleSummary.setQualityMeasure("T7", t7);
+                singleSummary.setQualityMeasure("T8", t8);
+                singleSummary.setQualityMeasure("T9", t9);
+                singleSummary.setQualityMeasure("T10", t10);
+            } else if (summaryType == 2 && summary instanceof MultipleEntityLinguisticSummary multiSummary) {
+                double qualityMeasureT = MultipleEntityQualityMeasureCalculator.calculateT(multiSummary, dataRows);
+
+                multiSummary.setQualityMeasure("T", qualityMeasureT);
+            }
         }
 
-        // === KROK 4: WYPISYWANIE PODSUMOWAŃ ===
+        // === KROK 6: WYPISYWANIE PODSUMOWAŃ ===
         System.out.println("\nGenerated linguistic summaries:");
-        for (LinguisticSummary summary : summaries) {
+        for (LinguisticSummaryBase summary : summaries) {
             System.out.println(summary);
         }
 

@@ -13,15 +13,30 @@
       spacing="10" style="-fx-background-color: bisque;" alignment="TOP_CENTER"
       prefWidth="1200" prefHeight="700">
 
+    <fx:define>
+        <ToggleGroup fx:id="summaryTypeGroup"/>
+    </fx:define>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Rodzaj podsumowania:"/>
+        <RadioButton fx:id="singleSummaryRadio" text="Jednopodmiotowe" toggleGroup="$summaryTypeGroup" selected="true"/>
+        <RadioButton fx:id="multiSummaryRadio" text="Wielopodmiotowe" toggleGroup="$summaryTypeGroup"/>
+    </HBox>
+
     <Label fx:id="formLabel" text="Wybierz forme podsumowania" style="-fx-font-weight: bold; -fx-padding: 5 0 5 0;"/>
 
     <fx:define>
         <ToggleGroup fx:id="chooseForm"/>
     </fx:define>
 
-    <HBox spacing="10" alignment="CENTER">
+    <HBox fx:id="formButtonsBox" spacing="10" alignment="CENTER">
         <RadioButton fx:id="form1" text="Forma 1" toggleGroup="$chooseForm"/>
         <RadioButton fx:id="form2" text="Forma 2" toggleGroup="$chooseForm"/>
+        <!-- CheckBoxy dla wielopodmiotowych, domyślnie ukryte -->
+        <CheckBox fx:id="form1Check" text="Forma 1" visible="false" managed="false"/>
+        <CheckBox fx:id="form2Check" text="Forma 2" visible="false" managed="false"/>
+        <CheckBox fx:id="form3Check" text="Forma 3" visible="false" managed="false"/>
+        <CheckBox fx:id="form4Check" text="Forma 4" visible="false" managed="false"/>
     </HBox>
 
     <TitledPane fx:id="summarizerPane" text="Wybierz sumaryzatory" expanded="false">
@@ -89,7 +104,13 @@
         <ComboBox fx:id="qualitySortComboBox" promptText="Wybierz miarę"/>
     </HBox>
 
-    <Button fx:id="generateButton" text="Generuj podsumowania" style="-fx-font-weight: bold; -fx-padding: 10;" VBox.vgrow="NEVER"/>
+<!--    <Button fx:id="generateButton" text="Generuj podsumowania" style="-fx-font-weight: bold; -fx-padding: 10;" VBox.vgrow="NEVER"/>-->
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="generateButton" text="Generuj podsumowania" style="-fx-font-weight: bold; -fx-padding: 10;" />
+        <Button fx:id="saveButton" text="Zapisz do pliku"/>
+        <TextField fx:id="rowsToSaveField" promptText="Liczba wierszy" prefWidth="100"/>
+    </HBox>
 
     <TableView fx:id="summaryTable" prefHeight="200" VBox.vgrow="ALWAYS">
         <columns>
