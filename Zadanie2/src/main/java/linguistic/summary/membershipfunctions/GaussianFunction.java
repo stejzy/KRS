@@ -16,6 +16,9 @@ public class GaussianFunction implements MembershipFunction{
         return sigma * Math.sqrt(2 * Math.PI);
     }
 
+    public double getC() { return c; }
+    public double getSigma() { return sigma; }
+
     @Override
     public double calculateMembership(double value) {
         return Math.exp(-Math.pow(value - c, 2) / (2 * sigma * sigma));

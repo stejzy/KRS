@@ -20,6 +20,11 @@ public class TrapezoidalFunction implements MembershipFunction{
         return rising + top + falling;
     }
 
+    public double getA() { return a; }
+    public double getB() { return b; }
+    public double getC() { return c; }
+    public double getD() { return d; }
+
     @Override
     public double calculateMembership(double value) {
         if (value <= a || value >= d) {

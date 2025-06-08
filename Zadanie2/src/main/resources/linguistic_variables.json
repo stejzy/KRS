@@ -1,0 +1,230 @@
+[ {
+  "name" : "Weight (kg)",
+  "min" : 47.0,
+  "max" : 119.0,
+  "step" : 1.0,
+  "labels" : {
+    "normalna" : {
+      "type" : "Gaussian",
+      "params" : [ 66.5, 4.5 ]
+    },
+    "otyła" : {
+      "type" : "Trapezoidal",
+      "params" : [ 80.0, 100.0, 119.0, 119.0 ]
+    },
+    "bardzo chuda" : {
+      "type" : "Gaussian",
+      "params" : [ 47.0, 2.5 ]
+    },
+    "chuda" : {
+      "type" : "Gaussian",
+      "params" : [ 55.0, 3.0 ]
+    },
+    "z nadwagą" : {
+      "type" : "Gaussian",
+      "params" : [ 80.0, 5.0 ]
+    }
+  }
+}, {
+  "name" : "Heart Rate (bpm)",
+  "min" : 80.0,
+  "max" : 179.0,
+  "step" : 1.0,
+  "labels" : {
+    "wysokie" : {
+      "type" : "Trapezoidal",
+      "params" : [ 150.0, 165.0, 179.0, 179.0 ]
+    },
+    "podwyższone" : {
+      "type" : "Gaussian",
+      "params" : [ 140.0, 10.0 ]
+    },
+    "umiarkowane" : {
+      "type" : "Gaussian",
+      "params" : [ 115.0, 12.0 ]
+    },
+    "niskie" : {
+      "type" : "Gaussian",
+      "params" : [ 80.0, 10.0 ]
+    }
+  }
+}, {
+  "name" : "Height (cm)",
+  "min" : 150.0,
+  "max" : 199.0,
+  "step" : 1.0,
+  "labels" : {
+    "bardzo wysoki" : {
+      "type" : "Trapezoidal",
+      "params" : [ 180.0, 189.0, 199.0, 199.0 ]
+    },
+    "wysoki" : {
+      "type" : "Gaussian",
+      "params" : [ 178.5, 4.0 ]
+    },
+    "średni" : {
+      "type" : "Gaussian",
+      "params" : [ 168.5, 4.0 ]
+    },
+    "niski" : {
+      "type" : "Gaussian",
+      "params" : [ 160.0, 3.0 ]
+    },
+    "bardzo niski" : {
+      "type" : "Gaussian",
+      "params" : [ 150.0, 4.0 ]
+    }
+  }
+}, {
+  "name" : "Calories Burned",
+  "min" : 100.0,
+  "max" : 999.0,
+  "step" : 1.0,
+  "labels" : {
+    "niska" : {
+      "type" : "Triangular",
+      "params" : [ 100.0, 100.0, 450.0 ]
+    },
+    "wysoka" : {
+      "type" : "Trapezoidal",
+      "params" : [ 600.0, 850.0, 999.0, 999.0 ]
+    },
+    "umiarkowana" : {
+      "type" : "Triangular",
+      "params" : [ 250.0, 550.0, 850.0 ]
+    }
+  }
+}, {
+  "name" : "Workout Duration (mins)",
+  "min" : 10.0,
+  "max" : 119.0,
+  "step" : 1.0,
+  "labels" : {
+    "umiarkowany" : {
+      "type" : "Triangular",
+      "params" : [ 25.0, 60.0, 90.0 ]
+    },
+    "krótki" : {
+      "type" : "Triangular",
+      "params" : [ 10.0, 10.0, 50.0 ]
+    },
+    "długi" : {
+      "type" : "Trapezoidal",
+      "params" : [ 70.0, 90.0, 119.0, 119.0 ]
+    }
+  }
+}, {
+  "name" : "Daily Calories Intake",
+  "min" : 1500.0,
+  "max" : 3999.0,
+  "step" : 1.0,
+  "labels" : {
+    "wysokie" : {
+      "type" : "Trapezoidal",
+      "params" : [ 3000.0, 3600.0, 3999.0, 3999.0 ]
+    },
+    "niskie" : {
+      "type" : "Triangular",
+      "params" : [ 1500.0, 1500.0, 2500.0 ]
+    },
+    "średnie" : {
+      "type" : "Triangular",
+      "params" : [ 1800.0, 2750.0, 3600.0 ]
+    }
+  }
+}, {
+  "name" : "Steps Taken",
+  "min" : 1000.0,
+  "max" : 19998.0,
+  "step" : 1.0,
+  "labels" : {
+    "mało" : {
+      "type" : "Triangular",
+      "params" : [ 1000.0, 1000.0, 10000.0 ]
+    },
+    "średnio" : {
+      "type" : "Triangular",
+      "params" : [ 5000.0, 10500.0, 16000.0 ]
+    },
+    "dużo" : {
+      "type" : "Trapezoidal",
+      "params" : [ 13000.0, 16000.0, 19998.0, 19998.0 ]
+    }
+  }
+}, {
+  "name" : "Resting Heart Rate (bpm)",
+  "min" : 55.0,
+  "max" : 89.0,
+  "step" : 1.0,
+  "labels" : {
+    "wysokie" : {
+      "type" : "Trapezoidal",
+      "params" : [ 74.0, 83.0, 89.0, 89.0 ]
+    },
+    "niskie" : {
+      "type" : "Gaussian",
+      "params" : [ 55.0, 6.0 ]
+    },
+    "średnie" : {
+      "type" : "Triangular",
+      "params" : [ 60.0, 71.0, 82.0 ]
+    }
+  }
+}, {
+  "name" : "Distance (km)",
+  "min" : 0.5,
+  "max" : 15.0,
+  "step" : 0.1,
+  "labels" : {
+    "średni" : {
+      "type" : "Gaussian",
+      "params" : [ 7.5, 2.3 ]
+    },
+    "daleki" : {
+      "type" : "Trapezoidal",
+      "params" : [ 10.0, 12.0, 15.0, 15.0 ]
+    },
+    "krótki" : {
+      "type" : "Gaussian",
+      "params" : [ 0.5, 2.8 ]
+    }
+  }
+}, {
+  "name" : "Age",
+  "min" : 18.0,
+  "max" : 59.0,
+  "step" : 1.0,
+  "labels" : {
+    "młody" : {
+      "type" : "Triangular",
+      "params" : [ 18.0, 18.0, 31.0 ]
+    },
+    "w średnim wieku" : {
+      "type" : "Triangular",
+      "params" : [ 22.0, 35.0, 48.0 ]
+    },
+    "stary" : {
+      "type" : "Trapezoidal",
+      "params" : [ 40.0, 45.0, 59.0, 59.0 ]
+    }
+  }
+}, {
+  "name" : "Sleep Hours",
+  "min" : 4.0,
+  "max" : 10.0,
+  "step" : 0.1,
+  "labels" : {
+    "mało" : {
+      "type" : "Triangular",
+      "params" : [ 4.0, 4.0, 6.5 ]
+    },
+    "przeciętnie" : {
+      "type" : "Gaussian",
+      "params" : [ 7.0, 1.2 ]
+    },
+    "dużo" : {
+      "type" : "Trapezoidal",
+      "params" : [ 8.0, 8.5, 10.0, 10.0 ]
+    }
+  }
+} ]

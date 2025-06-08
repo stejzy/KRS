@@ -6,7 +6,7 @@ import java.util.*;
 
 public class LinguisticVariable {
     private final String name;
-    private final double min, max;
+    private final double min, max, step;
     private final Map<String, FuzzySet> labels = new HashMap<>();
     private final double[] universe;
 
@@ -14,6 +14,7 @@ public class LinguisticVariable {
         this.name = name;
         this.min = min;
         this.max = max;
+        this.step = step;
         this.universe = createUniverse(min, max, step);
     }
 
@@ -61,5 +62,17 @@ public class LinguisticVariable {
                 .add("labels=" + labels)
                 .add("universe=" + Arrays.toString(universe))
                 .toString();
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public double getStep() {
+        return step;
     }
 }

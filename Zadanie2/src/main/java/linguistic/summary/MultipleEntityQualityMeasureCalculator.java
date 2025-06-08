@@ -2,10 +2,7 @@ package linguistic.summary;
 
 import utils.DataRow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MultipleEntityQualityMeasureCalculator {
 
@@ -15,7 +12,7 @@ public class MultipleEntityQualityMeasureCalculator {
             case 1 -> calculateTForm1(summary, groupedData);
             case 2 -> calculateTForm2(summary, groupedData);
             case 3 -> calculateTForm3(summary, groupedData);
-            case 4 -> calculateTForm4(summary, groupedData);
+            case 4 -> calculateTForm4(summary, dataRows);
             default -> throw new IllegalArgumentException("Nieobsługiwana forma: " + summary.getForm());
         };
     }
@@ -91,9 +88,29 @@ public class MultipleEntityQualityMeasureCalculator {
         return quantifier.getMembership(numerator / denominator);
     }
 
-    private static double calculateTForm4(MultipleEntityLinguisticSummary summary, Map<String, List<DataRow>> groupedData) {
-        // logika dla formy 4
-        return 0.0;
+    private static double calculateTForm4(MultipleEntityLinguisticSummary summary, List<DataRow> rows) {
+
+        List<Summarizer> summarizers = summary.getSummarizers();
+        double numerator = 0.0;
+
+        for(DataRow row : rows) {
+            double temp = 1.0;
+            for (Summarizer s : summarizers) {
+                double value = row.getNumericValue(s.getVariable().getName());
+                double m = s.getMembership(value);
+                temp = Math.min(temp, m);
+            }
+
+            if(Objects.equals(row.getStringValue("Gender"), summary.getComparedGroups().getFirst())){
+//                numerator += temp;
+                numerator += (1 - temp);
+            } else {
+                numerator += temp;
+//                numerator += (1 - temp);
+            }
+        }
+
+        return 1 - (numerator / rows.size());
     }
 
     private static double sumMemberships(List<DataRow> rows, List<Summarizer> summarizers, List<Summarizer> qualifiers) {

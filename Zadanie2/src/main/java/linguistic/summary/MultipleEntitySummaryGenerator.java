@@ -22,18 +22,22 @@ public class MultipleEntitySummaryGenerator {
         );
 
         for (List<String> pair : groupPairs) {
-            for (Quantifier quantifier : quantifiers) {
+            if (formNumber == 4) {
                 for (List<Summarizer> summarizerSet : summarizerCombinations) {
-                    if (formNumber == 1) {
-                        summaries.add(new MultipleEntityLinguisticSummary(quantifier, summarizerSet, null, formNumber, pair));
-                    } else if (formNumber == 2 || formNumber == 3) {
-                        for (List<Summarizer> qualifierSet : summarizerCombinations) {
-                            if (!summarizerSet.equals(qualifierSet) && Collections.disjoint(summarizerSet, qualifierSet)) {
-                                summaries.add(new MultipleEntityLinguisticSummary(quantifier, summarizerSet, qualifierSet, formNumber, pair));
+                    summaries.add(new MultipleEntityLinguisticSummary(null, summarizerSet, null, formNumber, pair));
+                }
+            } else {
+                for (Quantifier quantifier : quantifiers) {
+                    for (List<Summarizer> summarizerSet : summarizerCombinations) {
+                        if (formNumber == 1) {
+                            summaries.add(new MultipleEntityLinguisticSummary(quantifier, summarizerSet, null, formNumber, pair));
+                        } else if (formNumber == 2 || formNumber == 3) {
+                            for (List<Summarizer> qualifierSet : summarizerCombinations) {
+                                if (!summarizerSet.equals(qualifierSet) && Collections.disjoint(summarizerSet, qualifierSet)) {
+                                    summaries.add(new MultipleEntityLinguisticSummary(quantifier, summarizerSet, qualifierSet, formNumber, pair));
+                                }
                             }
                         }
-                    } else {
-                        summaries.add(new MultipleEntityLinguisticSummary(null, summarizerSet, null, formNumber, pair));
                     }
                 }
             }

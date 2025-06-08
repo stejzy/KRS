@@ -6,11 +6,16 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import linguistic.summary.*;
+import linguistic.summary.membershipfunctions.GaussianFunction;
+import linguistic.summary.membershipfunctions.MembershipFunction;
+import linguistic.summary.membershipfunctions.TrapezoidalFunction;
+import linguistic.summary.membershipfunctions.TriangularFunction;
 import utils.DataRow;
 import utils.PostgresToDataRowLoader;
 
@@ -348,6 +353,7 @@ public class InputController {
     }
 
     private void initializeLinguisticVariables() {
+        radioGroupsContainer.getChildren().clear();
         variableMap = LinguisticVariableRegistry.getAllLinguisticVariables();
 
         for (Map.Entry<String, LinguisticVariable> entry : variableMap.entrySet()) {
@@ -375,6 +381,10 @@ public class InputController {
                 rb.setOnAction(e -> updateSelectedSummarizers());
             }
 
+            Button addLabelButton = new Button("Dodaj etykietę");
+            addLabelButton.setOnAction(e -> showAddLabelDialog(variable));
+            content.getChildren().add(addLabelButton);
+
             TitledPane titledPane = new TitledPane(variableName, content);
             titledPane.setExpanded(false);
 
@@ -385,6 +395,124 @@ public class InputController {
             Node first = radioGroupsContainer.getChildren().get(0);
             VBox.setMargin(first, new Insets(10, 0, 0, 0));
         }
+    }
+
+    private void showAddLabelDialog(LinguisticVariable variable) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Dodaj etykietę do " + variable.getName());
+
+        Label nameLabel = new Label("Nazwa etykiety:");
+        TextField nameField = new TextField();
+
+        Label functionLabel = new Label("Funkcja przynależności:");
+        ComboBox<String> functionType = new ComboBox<>();
+        functionType.getItems().addAll("Trójkątna", "Trapezowa", "Gaussa");
+        functionType.setValue("Trapezowa"); // domyślnie trapezowa
+
+        CheckBox relativeBox = new CheckBox("Względny (0-1)?");
+
+        // Pola dla funkcji
+        final TextField[] aField = new TextField[1];
+        final TextField[] bField = new TextField[1];
+        final TextField[] cField = new TextField[1];
+        final TextField[] dField = new TextField[1];
+        final TextField[] centerField = new TextField[1];
+        final TextField[] sigmaField = new TextField[1];
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.addRow(0, nameLabel, nameField);
+        grid.addRow(1, functionLabel, functionType);
+
+        // Domyślnie trapezowa
+        aField[0] = new TextField();
+        bField[0] = new TextField();
+        cField[0] = new TextField();
+        dField[0] = new TextField();
+        grid.addRow(2, new Label("a:"), aField[0]);
+        grid.addRow(3, new Label("b:"), bField[0]);
+        grid.addRow(4, new Label("c:"), cField[0]);
+        grid.addRow(5, new Label("d:"), dField[0]);
+        grid.addRow(6, relativeBox);
+
+        functionType.setOnAction(e -> {
+            grid.getChildren().removeIf(node -> {
+                Integer row = GridPane.getRowIndex(node);
+                return row != null && row >= 2;
+            });
+
+            switch (functionType.getValue()) {
+                case "Trójkątna" -> {
+                    aField[0] = new TextField();
+                    bField[0] = new TextField();
+                    cField[0] = new TextField();
+                    grid.addRow(2, new Label("a:"), aField[0]);
+                    grid.addRow(3, new Label("b:"), bField[0]);
+                    grid.addRow(4, new Label("c:"), cField[0]);
+                    grid.addRow(5, relativeBox);
+                }
+                case "Trapezowa" -> {
+                    aField[0] = new TextField();
+                    bField[0] = new TextField();
+                    cField[0] = new TextField();
+                    dField[0] = new TextField();
+                    grid.addRow(2, new Label("a:"), aField[0]);
+                    grid.addRow(3, new Label("b:"), bField[0]);
+                    grid.addRow(4, new Label("c:"), cField[0]);
+                    grid.addRow(5, new Label("d:"), dField[0]);
+                    grid.addRow(6, relativeBox);
+                }
+                case "Gaussa" -> {
+                    centerField[0] = new TextField();
+                    sigmaField[0] = new TextField();
+                    grid.addRow(2, new Label("c (środek):"), centerField[0]);
+                    grid.addRow(3, new Label("σ (odchylenie):"), sigmaField[0]);
+                    grid.addRow(4, relativeBox);
+                }
+            }
+        });
+
+        VBox wrapper = new VBox(grid);
+        wrapper.setPadding(new Insets(10));
+        dialog.getDialogPane().setContent(wrapper);
+        dialog.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                String labelName = nameField.getText();
+                MembershipFunction function = null;
+                boolean isRelative = relativeBox.isSelected();
+                try {
+                    switch (functionType.getValue()) {
+                        case "Trójkątna" -> function = new TriangularFunction(
+                                Double.parseDouble(aField[0].getText()),
+                                Double.parseDouble(bField[0].getText()),
+                                Double.parseDouble(cField[0].getText()));
+                        case "Trapezowa" -> function = new TrapezoidalFunction(
+                                Double.parseDouble(aField[0].getText()),
+                                Double.parseDouble(bField[0].getText()),
+                                Double.parseDouble(cField[0].getText()),
+                                Double.parseDouble(dField[0].getText()));
+                        case "Gaussa" -> function = new GaussianFunction(
+                                Double.parseDouble(centerField[0].getText()),
+                                Double.parseDouble(sigmaField[0].getText()));
+                    }
+                } catch (Exception ex) {
+                    return null;
+                }
+                if (function != null) {
+                    // Jeśli chcesz zapisać względność, przekaż isRelative do odpowiedniej metody
+                    LinguisticVariableRegistry.addLabelToVariable(variable.getName(), labelName, function);
+                    initializeLinguisticVariables();
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
     }
 
     private final List<String> singleEntityQualityMeasures = new ArrayList<>(List.of(
@@ -444,7 +572,8 @@ public class InputController {
        }
 
 
-    private void initializeQuantifiers() {
+   private void initializeQuantifiers() {
+        quantifierContainer.getChildren().clear(); // <-- dodaj to!
         quantifierMap = QuantifierRegistry.getAll();
 
         Map<Boolean, List<Quantifier>> partitioned = quantifierMap.values().stream()
@@ -457,7 +586,145 @@ public class InputController {
             Node first = quantifierContainer.getChildren().getFirst();
             VBox.setMargin(first, new Insets(10, 0, 0, 0));
         }
+
+        Button addQuantifierButton = new Button("Dodaj kwantyfikator");
+        addQuantifierButton.setOnAction(e -> {
+            showAddQuantifierDialog();
+            System.out.println("Dodawanie nowego kwantyfikatora...");
+        });
+        quantifierContainer.getChildren().add(addQuantifierButton);
+        VBox.setMargin(addQuantifierButton, new Insets(10, 0, 0, 0));
     }
+
+  private void showAddQuantifierDialog() {
+      Dialog<Quantifier> dialog = new Dialog<>();
+      dialog.setTitle("Dodaj kwantyfikator");
+
+      Label nameLabel = new Label("Nazwa:");
+      TextField nameField = new TextField();
+
+      Label functionLabel = new Label("Funkcja przynależności:");
+      ComboBox<String> functionType = new ComboBox<>();
+      functionType.getItems().addAll("Trójkątna", "Trapezowa", "Gaussa");
+      functionType.setValue("Trapezowa");
+
+      CheckBox relativeBox = new CheckBox("Względny (0-1)?");
+
+      // Referencje do aktualnych pól
+      final TextField[] currentAField = new TextField[1];
+      final TextField[] currentBField = new TextField[1];
+      final TextField[] currentCField = new TextField[1];
+      final TextField[] currentDField = new TextField[1];
+      final TextField[] currentCenterField = new TextField[1];
+      final TextField[] currentSigmaField = new TextField[1];
+
+      GridPane grid = new GridPane();
+      grid.setHgap(10);
+      grid.setVgap(10);
+      grid.addRow(0, nameLabel, nameField);
+      grid.addRow(1, functionLabel, functionType);
+
+      // Domyślnie trapezowa
+      currentAField[0] = new TextField();
+      currentBField[0] = new TextField();
+      currentCField[0] = new TextField();
+      currentDField[0] = new TextField();
+      grid.addRow(2, new Label("a:"), currentAField[0]);
+      grid.addRow(3, new Label("b:"), currentBField[0]);
+      grid.addRow(4, new Label("c:"), currentCField[0]);
+      grid.addRow(5, new Label("d:"), currentDField[0]);
+      grid.addRow(6, relativeBox);
+
+      functionType.setOnAction(e -> {
+          grid.getChildren().clear();
+          grid.addRow(0, nameLabel, nameField);
+          grid.addRow(1, functionLabel, functionType);
+          switch (functionType.getValue()) {
+              case "Trójkątna" -> {
+                  currentAField[0] = new TextField();
+                  currentBField[0] = new TextField();
+                  currentCField[0] = new TextField();
+                  grid.addRow(2, new Label("a:"), currentAField[0]);
+                  grid.addRow(3, new Label("b:"), currentBField[0]);
+                  grid.addRow(4, new Label("c:"), currentCField[0]);
+                  grid.addRow(5, relativeBox);
+              }
+              case "Trapezowa" -> {
+                  currentAField[0] = new TextField();
+                  currentBField[0] = new TextField();
+                  currentCField[0] = new TextField();
+                  currentDField[0] = new TextField();
+                  grid.addRow(2, new Label("a:"), currentAField[0]);
+                  grid.addRow(3, new Label("b:"), currentBField[0]);
+                  grid.addRow(4, new Label("c:"), currentCField[0]);
+                  grid.addRow(5, new Label("d:"), currentDField[0]);
+                  grid.addRow(6, relativeBox);
+              }
+              case "Gaussa" -> {
+                  currentCenterField[0] = new TextField();
+                  currentSigmaField[0] = new TextField();
+                  grid.addRow(2, new Label("c (środek):"), currentCenterField[0]);
+                  grid.addRow(3, new Label("σ (odchylenie):"), currentSigmaField[0]);
+                  grid.addRow(4, relativeBox);
+              }
+          }
+      });
+
+      dialog.getDialogPane().setContent(grid);
+      dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+      dialog.setResultConverter(btn -> {
+          if (btn == ButtonType.OK) {
+              String name = nameField.getText();
+              boolean isRelative = relativeBox.isSelected();
+              FuzzySet set = null;
+
+              switch (functionType.getValue()) {
+                  case "Trójkątna" -> {
+                      double a = Double.parseDouble(currentAField[0].getText());
+                      double b = Double.parseDouble(currentBField[0].getText());
+                      double c = Double.parseDouble(currentCField[0].getText());
+                      set = FuzzySet.createWithDenseUniverse(
+                          new TriangularFunction(a, b, c),
+                          isRelative ? 0.0 : 0.0,
+                          isRelative ? 1.0 : 10000.0,
+                          isRelative ? 0.001 : 0.1
+                      );
+                  }
+                  case "Trapezowa" -> {
+                      double a = Double.parseDouble(currentAField[0].getText());
+                      double b = Double.parseDouble(currentBField[0].getText());
+                      double c = Double.parseDouble(currentCField[0].getText());
+                      double d = Double.parseDouble(currentDField[0].getText());
+                      set = FuzzySet.createWithDenseUniverse(
+                          new TrapezoidalFunction(a, b, c, d),
+                          isRelative ? 0.0 : 0.0,
+                          isRelative ? 1.0 : 10000.0,
+                          isRelative ? 0.001 : 0.1
+                      );
+                  }
+                  case "Gaussa" -> {
+                      double center = Double.parseDouble(currentCenterField[0].getText());
+                      double sigma = Double.parseDouble(currentSigmaField[0].getText());
+                      set = FuzzySet.createWithDenseUniverse(
+                          new GaussianFunction(center, sigma),
+                          isRelative ? 0.0 : 0.0,
+                          isRelative ? 1.0 : 10000.0,
+                          isRelative ? 0.001 : 0.1
+                      );
+                  }
+              }
+              return new Quantifier(name, set, isRelative);
+          }
+          return null;
+      });
+
+      Optional<Quantifier> result = dialog.showAndWait();
+      result.ifPresent(q -> {
+          QuantifierRegistry.addQuantifier(q.getName(), q);
+          initializeQuantifiers();
+      });
+  }
 
     private void createQuantifierPane(String title, List<Quantifier> quantifiers) {
         if (quantifiers == null || quantifiers.isEmpty()) return;
@@ -549,7 +816,18 @@ public class InputController {
     }
 
     private void generateSummaries() {
-        if (summarizers.isEmpty() || quantifiers.isEmpty()) {
+
+        boolean isMulti = multiSummaryRadio.isSelected();
+        List<Integer> selectedForms = isMulti ? getSelectedMultiForms() : List.of();
+        boolean onlyForm4 = isMulti && selectedForms.size() == 1 && selectedForms.getFirst() == 4;
+
+        // Dla jednopodmiotowych: wymagaj kwantyfikatora i sumaryzatora
+        if (!isMulti && (summarizers.isEmpty() || quantifiers.isEmpty())) {
+            System.out.println("Dla jednopodmiotowych musisz wybrać sumaryzator i kwantyfikator.");
+            return;
+        }
+        // Dla wielopodmiotowych: dotychczasowa logika
+        if (isMulti && (summarizers.isEmpty() || (quantifiers.isEmpty() && !onlyForm4 && !selectedForms.isEmpty()))) {
             System.out.println("Brak wybranych sumaryzatorów lub kwantyfikatorów.");
             return;
         }
@@ -558,8 +836,6 @@ public class InputController {
             System.out.println("Musisz wybrać co najmniej jedną miarę jakości.");
             return;
         }
-
-        boolean isMulti = multiSummaryRadio.isSelected();
 
         List<? extends LinguisticSummaryBase> summaries;
 
@@ -620,8 +896,6 @@ public class InputController {
                 }
             }
         } else {
-
-            List<Integer> selectedForms = getSelectedMultiForms();
             if (selectedForms.isEmpty()) {
                 System.out.println("Wybierz przynajmniej jedną formę dla wielopodmiotowych.");
                 return;
@@ -638,7 +912,7 @@ public class InputController {
                 boolean needsTwoSummarizers = formNumber == 2 || formNumber == 3;
                 if (needsTwoSummarizers && summarizers.size() < 2) {
                     System.out.println("Dla formy " + formNumber + " musisz wybrać co najmniej dwa sumaryzatory.");
-                    continue;
+                    return;
                 }
 
                 summaries = MultipleEntitySummaryGenerator.generateAllSummaries(

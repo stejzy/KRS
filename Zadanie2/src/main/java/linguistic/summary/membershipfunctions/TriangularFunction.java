@@ -16,6 +16,10 @@ public class TriangularFunction implements MembershipFunction{
         return 0.5 * (c - a);
     }
 
+    public double getA() { return a; }
+    public double getB() { return b; }
+    public double getC() { return c; }
+
     @Override
     public double calculateMembership(double value) {
         if (value <= a || value >= c) {
